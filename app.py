@@ -1,7 +1,6 @@
-from flask import Flask
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask import request, jsonify
 
 # Inicjalizacja aplikacji Flask
 app = Flask(__name__)
@@ -10,7 +9,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///kino.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Inicjalizacja SQLAlchemy
+# Inicjalizacja SQLAlchemy i Flask-Migrate
 db = SQLAlchemy(app)
 
 # Tabela Filmy
@@ -24,13 +23,13 @@ class Film(db.Model):
     data_premiery = db.Column(db.Date, nullable=False)
     plakat_url = db.Column(db.String(300), nullable=True)
 
-    seanse = db.relationship('Seans', backref='film', lazy=True) #db.relationship - służy do definiowania relacji między tabelami
+    seanse = db.relationship('Seans', backref='film', lazy=True)
 
 # Tabela Seanse
 class Seans(db.Model):
     __tablename__ = 'seanse'
     id = db.Column(db.Integer, primary_key=True)
-    film_id = db.Column(db.Integer, db.ForeignKey('filmy.id'), nullable=False)  #ForeignKey tworzy relację między tabelą Seanse ( kolumna film_id), a tabelą Filmy.
+    film_id = db.Column(db.Integer, db.ForeignKey('filmy.id'), nullable=False)
     data = db.Column(db.Date, nullable=False)
     godzina = db.Column(db.Time, nullable=False)
     sala = db.Column(db.String(10), nullable=False)
@@ -54,8 +53,8 @@ class Rezerwacja(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     klient_id = db.Column(db.Integer, db.ForeignKey('klienci.id'), nullable=False)
     seans_id = db.Column(db.Integer, db.ForeignKey('seanse.id'), nullable=False)
-    miejsca = db.Column(db.Text, nullable=False)  # Lista miejsc w formacie tekstowym np. "A1, A2"
-    status = db.Column(db.String(50), nullable=False)  # Status np. "potwierdzona", "anulowana"
+    miejsca = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(50), nullable=False)
     unikalny_kod = db.Column(db.String(100), unique=True, nullable=False)
 
 # Tabela Administratorzy
@@ -65,20 +64,13 @@ class Administrator(db.Model):
     imie = db.Column(db.String(100), nullable=False)
     nazwisko = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
-    haslo = db.Column(db.String(200), nullable=False)  # Hasło powinno być zaszyfrowane
-    rola = db.Column(db.String(50), nullable=False)  # np. "zarządca", "pracownik kina"
+    haslo = db.Column(db.String(200), nullable=False)
+    rola = db.Column(db.String(50), nullable=False)
 
-# Funkcja tworząca bazy danych
-#@app.before_first_request
-#def create_tables():
-#    db.create_all()
-
-# Wyświetlanie wszystkich filmów lub konkretnego filmu
+# Endpointy
 @app.route('/filmy', methods=['GET'])
 def get_filmy():
-    # Pobranie wszystkich filmów
     filmy = Film.query.all()
-    # Zwrócenie listy filmów w formacie JSON
     return jsonify([{
         'id': film.id,
         'tytul': film.tytul,
@@ -91,9 +83,10 @@ def get_filmy():
 
 @app.route('/filmy/<int:film_id>', methods=['GET'])
 def get_film(film_id):
-    # Pobranie konkretnego filmu
-    film = Film.query.get_or_404(film_id)
-    # Zwrócenie szczegółów filmu w formacie JSON
+    film = Film.query.get(film_id)
+    if not film:
+        return jsonify({'error': 'Film nie został znaleziony'}), 404
+
     return jsonify({
         'id': film.id,
         'tytul': film.tytul,
@@ -104,39 +97,38 @@ def get_film(film_id):
         'plakat_url': film.plakat_url
     }), 200
 
-# Dodawanie nowego filmu
 @app.route('/filmy', methods=['POST'])
 def add_film():
-    # Pobranie danych z żądania
     data = request.get_json()
     if not data:
         return jsonify({'error': 'Brak danych w żądaniu'}), 400
-    
+
     try:
-        # Utworzenie nowego obiektu Film
         nowy_film = Film(
             tytul=data['tytul'],
-            opis=data.get('opis', ''),  # Opis jest opcjonalny
+            opis=data.get('opis', ''),
             gatunek=data['gatunek'],
             dlugosc=data['dlugosc'],
             data_premiery=datetime.strptime(data['data_premiery'], '%Y-%m-%d'),
-            plakat_url=data.get('plakat_url')  # Plakat URL jest opcjonalny
+            plakat_url=data.get('plakat_url')
         )
-        # Dodanie filmu do bazy danych
         db.session.add(nowy_film)
         db.session.commit()
-        # Zwrócenie odpowiedzi
         return jsonify({'message': 'Film został dodany', 'id': nowy_film.id}), 201
     except KeyError as e:
+        db.session.rollback()
         return jsonify({'error': f'Brakuje pola: {e}'}), 400
-    except ValueError as e:
+    except ValueError:
+        db.session.rollback()
         return jsonify({'error': 'Nieprawidłowy format danych'}), 400
-
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Wystąpił błąd: {e}'}), 500
 
 @app.route('/filmy/<tytul>/<opis>/<gatunek>/<int:dlugosc>/<data_premiery>/<path:plakat_url>', methods=['POST'])
 def add_film_via_url(tytul, opis, gatunek, dlugosc, data_premiery, plakat_url):
     try:
-        # Utworzenie nowego filmu na podstawie danych z URL
+        # Tworzenie nowego obiektu Film
         nowy_film = Film(
             tytul=tytul,
             opis=opis,
@@ -145,13 +137,45 @@ def add_film_via_url(tytul, opis, gatunek, dlugosc, data_premiery, plakat_url):
             data_premiery=datetime.strptime(data_premiery, '%Y-%m-%d'),
             plakat_url=plakat_url
         )
+        # Dodanie i zapis w bazie danych
         db.session.add(nowy_film)
         db.session.commit()
         return jsonify({'message': 'Film został dodany', 'id': nowy_film.id}), 201
-    except ValueError as e:
-        return jsonify({'error': 'Nieprawidłowy format danych w URL'}), 400
+    except ValueError:
+        db.session.rollback()
+        return jsonify({'error': 'Nieprawidłowy format daty. Użyj YYYY-MM-DD.'}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Wystąpił błąd: {e}'}), 500
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    message = None
+    if request.method == 'POST':
+        tytul = request.form.get('tytul')
+        opis = request.form.get('opis')
+        gatunek = request.form.get('gatunek')
+        dlugosc = request.form.get('dlugosc')
+        data_premiery = request.form.get('data_premiery')
+        plakat_url = request.form.get('plakat_url')
+
+        try:
+            nowy_film = Film(
+                tytul=tytul,
+                opis=opis,
+                gatunek=gatunek,
+                dlugosc=int(dlugosc),
+                data_premiery=datetime.strptime(data_premiery, '%Y-%m-%d'),
+                plakat_url=plakat_url
+            )
+            db.session.add(nowy_film)
+            db.session.commit()
+            message = "Film został pomyślnie dodany!"
+        except Exception as e:
+            db.session.rollback()
+            message = f"Wystąpił błąd: {str(e)}"
+
+    return render_template('admin.html', message=message)
 
 if __name__ == '__main__':
-    with app.app_context():
-      db.create_all()
-      app.run(debug=True)
+    app.run(debug=True)
