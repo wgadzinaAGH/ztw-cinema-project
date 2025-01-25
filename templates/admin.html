@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dodaj Film</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: green;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dodaj Nowy Film</h1>
+        <form method="POST">
+            <label for="tytul">Tytuł:</label>
+            <input type="text" id="tytul" name="tytul" required>
+
+            <label for="opis">Opis:</label>
+            <textarea id="opis" name="opis" rows="4"></textarea>
+
+            <label for="gatunek">Gatunek:</label>
+            <input type="text" id="gatunek" name="gatunek" required>
+
+            <label for="dlugosc">Długość (minuty):</label>
+            <input type="number" id="dlugosc" name="dlugosc" required>
+
+            <label for="data_premiery">Data premiery:</label>
+            <input type="date" id="data_premiery" name="data_premiery" required>
+
+            <label for="plakat_url">URL plakatu:</label>
+            <input type="url" id="plakat_url" name="plakat_url">
+
+            <button type="submit">Dodaj Film</button>
+        </form>
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
