@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -68,6 +68,10 @@ class Administrator(db.Model):
     rola = db.Column(db.String(50), nullable=False)
 
 # Endpointy
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
 @app.route('/filmy', methods=['GET'])
 def get_filmy():
     filmy = Film.query.all()
@@ -148,9 +152,15 @@ def add_film_via_url(tytul, opis, gatunek, dlugosc, data_premiery, plakat_url):
         db.session.rollback()
         return jsonify({'error': f'Wystąpił błąd: {e}'}), 500
 
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET'])
 def admin():
+    return render_template('admin.html')
+
+@app.route('/admin/zarzadzaj_filmami', methods=['GET', 'POST'])
+def zarzadzaj_filmami():
     message = None
+    filmy = Film.query.order_by(Film.data_premiery.desc()).all()  # Pobieranie wszystkich filmów z bazy w kolejności wg daty premiery
+
     if request.method == 'POST':
         tytul = request.form.get('tytul')
         opis = request.form.get('opis')
@@ -174,8 +184,46 @@ def admin():
         except Exception as e:
             db.session.rollback()
             message = f"Wystąpił błąd: {str(e)}"
+    
+    return render_template('admin_zarzadzaj_filmami.html', message=message, filmy=filmy)
 
-    return render_template('admin.html', message=message)
+@app.route('/admin/zarzadzaj_filmami/edytuj/<int:film_id>', methods=['GET', 'POST'])
+def edytuj_film(film_id):
+    film = Film.query.get_or_404(film_id)  # Pobieramy film z bazy na podstawie jego ID
+    
+    if request.method == 'POST':
+        # Pobieramy dane z formularza
+        film.tytul = request.form['tytul']
+        film.opis = request.form['opis']
+        film.gatunek = request.form['gatunek']
+        film.dlugosc = int(request.form['dlugosc'])
+        film.data_premiery = datetime.strptime(request.form['data_premiery'], '%Y-%m-%d')
+        film.plakat_url = request.form['plakat_url']
+        
+        try:
+            # Zatwierdzamy zmiany w bazie danych
+            db.session.commit()
+            message = "Film został pomyślnie zaktualizowany!"
+            return redirect(url_for('zarzadzaj_filmami', message=message))  # Przekierowanie do strony admin
+        except Exception as e:
+            db.session.rollback()  # W razie błędu cofamy zmiany
+            message = f"Wystąpił błąd: {str(e)}"
+            return render_template('admin_zarzadzaj_filmami_edytuj.html', film=film, message=message)
+    
+    return render_template('admin_zarzadzaj_filmami_edytuj.html', film=film)
+
+@app.route('/admin/zarzadzaj_filmami/usun/<int:film_id>', methods=['GET'])
+def usun_film(film_id):
+    film = Film.query.get_or_404(film_id)
+    try:
+        db.session.delete(film)
+        db.session.commit()
+        message = "Film został pomyślnie usunięty!"
+    except Exception as e:
+        db.session.rollback()
+        message = f"Wystąpił błąd: {str(e)}"
+    
+    return redirect(url_for('zarzadzaj_filmami', message=message))
 
 if __name__ == '__main__':
     app.run(debug=True)
