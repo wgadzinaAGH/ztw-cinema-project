@@ -163,44 +163,41 @@
     </div>
 
     <div class="breadcrumbs">
-        <a href="{{ url_for('admin')}}"> &lt; wróć</a>
-        <h1>DODAJ NOWY FILM</h1>
+        <a href="{{ url_for('admin_bazy')}}"> &lt; wróć</a>
+        <h1>REZERWACJE</h1>
     </div>
 
     <div class="container">
         <form method="POST">
-            <label for="tytul">Tytuł:</label>
-            <input type="text" id="tytul" name="tytul" required>
-
-            <label for="opis">Opis:</label>
-            <textarea id="opis" name="opis" rows="4"></textarea>
-
-            <label for="gatunek">Gatunek:</label>
-            <input type="text" id="gatunek" name="gatunek" required>
-
-            <label for="dlugosc">Długość (minuty):</label>
-            <input type="number" id="dlugosc" name="dlugosc" required>
-
-            <label for="data_premiery">Data premiery:</label>
-            <input type="date" id="data_premiery" name="data_premiery" required>
-
-            <label for="plakat_url">URL plakatu:</label>
-            <input type="url" id="plakat_url" name="plakat_url">
-
-            <button class="dark" type="submit">Dodaj Film</button>
+            <label for="klient_id">ID Klienta:</label>
+            <input type="number" id="klient_id" name="klient_id" required>
+    
+            <label for="seans_id">ID Seansu:</label>
+            <input type="number" id="seans_id" name="seans_id" required>
+    
+            <label for="miejsca">Miejsca:</label>
+            <input type="text" id="miejsca" name="miejsca" required>
+    
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" required>
+    
+            <label for="unikalny_kod">Unikalny Kod:</label>
+            <input type="text" id="unikalny_kod" name="unikalny_kod" required>
+    
+            <button class="dark" type="submit">Dodaj Rezerwację</button>
         </form>
-
-        <h2>Filmy w bazie</h2>
+    
+        <h2>Rezerwacje w bazie</h2>
         <ul>
-            {% for film in filmy %}
+            {% for rezerwacja in rezerwacje %}
             <li>
-                <strong>{{ film.tytul }} ({{ film.data_premiery.strftime('%Y') }})</strong> - {{ film.gatunek }} 
-                <a href="{{ url_for('edytuj_film', film_id=film.id) }}">Edytuj</a> |
-                <a href="{{ url_for('usun_film', film_id=film.id) }}" onclick="return confirm('Na pewno chcesz usunąć ten film?')">Usuń</a>
+                <strong>Klient ID: {{ rezerwacja.klient_id }}</strong> | Seans ID: {{ rezerwacja.seans_id }} | Miejsca: {{ rezerwacja.miejsca }} | Status: {{ rezerwacja.status }} | Kod: {{ rezerwacja.unikalny_kod }}
+                <a href="{{ url_for('edytuj_rezerwacje', rezerwacja_id=rezerwacja.id) }}">Edytuj</a> |
+                <a href="{{ url_for('usun_rezerwacje', rezerwacja_id=rezerwacja.id) }}" onclick="return confirm('Na pewno chcesz usunąć tę rezerwację?')">Usuń</a>
             </li>
             {% endfor %}
         </ul>
-
+    
         {% if message %}
         <div class="message">{{ message }}</div>
         {% endif %}

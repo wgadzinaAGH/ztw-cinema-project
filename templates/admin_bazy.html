@@ -123,7 +123,6 @@
     </style>
 </head>
 <body>
-    <!-- Pasek nawigacyjny -->
     <div class="navbar">
         <div class="logo">
             <img src="{{ url_for('static', filename='images/absolute_cinema_logo.png') }}" alt="Logo">
@@ -135,22 +134,27 @@
     </div>
 
     <div class="breadcrumbs">
-        <h1>Panel Administracyjny</h1>
+        <a href="{{ url_for('admin')}}"> &lt; wróć</a>
+        <h1>ZARZĄDZAJ BAZAMI</h1>
     </div>
+</head>
 
     <div class="container">
-        <div>
-            <button>Sprawdź rezerwację</button>
-            <button>Usuń rezerwację</button>
-            <button>Zmień rezerwację</button>
-        </div>
-        
-        <div>
-            <a href="{{ url_for('admin_bazy') }}">
-                <button id="manageMoviesButton">Bazy</button>
-            </a>
-        </div>
-
+        <a href="{{ url_for('zarzadzaj_filmami') }}">
+            <button>Zarządzaj Filmami</button>
+        </a>
+        <a href="{{ url_for('zarzadzaj_seansami') }}">
+            <button>Zarządzaj Seansami</button>
+        </a>
+        <a href="{{ url_for('zarzadzaj_rezerwacjami') }}">
+            <button>Zarządzaj Rezerwacjami</button>
+        </a>
+        <a href="{{ url_for('zarzadzaj_klientami') }}">
+            <button>Zarządzaj Klientami</button>
+        </a>
+        <a href="{{ url_for('zarzadzaj_administratorami') }}">
+            <button>Zarządzaj Adminami</button>
+        </a>
     </div>
 
     <!-- Stopka -->
