@@ -47,7 +47,6 @@
             font-weight: normal;
         }
 
-        /* Stopka */
         .footer {
             background-color: lightgray;
             color: #333;
@@ -57,15 +56,15 @@
             flex-shrink: 0;
         }
 
-        /* Kontener */
         .container {
-            max-width: 600px;
-            margin: 50px auto;
+            min-width: 600px;
+            margin-top: 50px;
             padding: 20px;
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             flex-grow: 1;
+            align-self: center;
         }
 
         .breadcrumbs {
@@ -81,25 +80,54 @@
             color: #333333;
         }
 
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
         button {
-            padding: 40px;
+            padding: 15px;
             font-size: 18px;
             border: 1px solid #ccc;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
             background-color: black;
             color: white;
             width: 100%;
-            margin-bottom: 15px;
+            margin-top: 10px; /* Zwiększamy przestrzeń między przyciskiem a formularzem */
         }
 
         button:hover {
             background-color: #0056b3;
         }
 
-        /* Formularz do dodawania filmu */
-        .film-form {
-            display: none;
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: green;
         }
 
         /* Lista filmów */
@@ -120,10 +148,10 @@
         ul li a:hover {
             text-decoration: underline;
         }
+
     </style>
 </head>
 <body>
-    <!-- Pasek nawigacyjny -->
     <div class="navbar">
         <div class="logo">
             <img src="{{ url_for('static', filename='images/absolute_cinema_logo.png') }}" alt="Logo">
@@ -135,28 +163,51 @@
     </div>
 
     <div class="breadcrumbs">
-        <h1>Panel Administracyjny</h1>
+        <a href="{{ url_for('admin_bazy')}}"> &lt; wróć</a>
+        <h1>DODAJ NOWY FILM</h1>
     </div>
 
     <div class="container">
-        <div>
-            <button>Sprawdź rezerwację</button>
-            <button>Usuń rezerwację</button>
-            <button>Zmień rezerwację</button>
-        </div>
-        
-        <div>
-            <a href="{{ url_for('admin_bazy') }}">
-                <button id="manageMoviesButton">Bazy</button>
-            </a>
-        </div>
+        <form method="POST">
+            <label for="tytul">Tytuł:</label>
+            <input type="text" id="tytul" name="tytul" required>
 
+            <label for="opis">Opis:</label>
+            <textarea id="opis" name="opis" rows="4"></textarea>
+
+            <label for="gatunek">Gatunek:</label>
+            <input type="text" id="gatunek" name="gatunek" required>
+
+            <label for="dlugosc">Długość (minuty):</label>
+            <input type="number" id="dlugosc" name="dlugosc" required>
+
+            <label for="data_premiery">Data premiery:</label>
+            <input type="date" id="data_premiery" name="data_premiery" required>
+
+            <label for="plakat_url">URL plakatu:</label>
+            <input type="url" id="plakat_url" name="plakat_url">
+
+            <button class="dark" type="submit">Dodaj Film</button>
+        </form>
+
+        <h2>Filmy w bazie</h2>
+        <ul>
+            {% for film in filmy %}
+            <li>
+                <strong>{{ film.tytul }} ({{ film.data_premiery.strftime('%Y') }})</strong> - {{ film.gatunek }} 
+                <a href="{{ url_for('edytuj_film', film_id=film.id) }}">Edytuj</a> |
+                <a href="{{ url_for('usun_film', film_id=film.id) }}" onclick="return confirm('Na pewno chcesz usunąć ten film?')">Usuń</a>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
     </div>
 
-    <!-- Stopka -->
     <div class="footer">
         <p>Absolute Cinema Admin Panel</p>
     </div>
-
 </body>
 </html>

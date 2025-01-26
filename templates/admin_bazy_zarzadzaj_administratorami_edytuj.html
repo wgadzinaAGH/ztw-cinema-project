@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj Admina</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: green;
+            text-align: center;
+        }
+        .error {
+            margin-top: 20px;
+            font-size: 14px;
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edytuj Administratora: {{ administrator.imie }} {{ administrator.nazwisko }}</h1>
+        
+        <!-- Formularz do edytowania administratora -->
+        <form method="POST">
+            <label for="imie">Imię:</label>
+            <input type="text" id="imie" name="imie" value="{{ administrator.imie }}" required>
+    
+            <label for="nazwisko">Nazwisko:</label>
+            <input type="text" id="nazwisko" name="nazwisko" value="{{ administrator.nazwisko }}" required>
+    
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" value="{{ administrator.email }}" required>
+    
+            <label for="haslo">Hasło:</label>
+            <input type="password" id="haslo" name="haslo" placeholder="Wpisz nowe hasło (pozostaw puste, jeśli nie zmieniać)">
+    
+            <label for="rola">Rola:</label>
+            <input type="text" id="rola" name="rola" value="{{ administrator.rola }}" required>
+    
+            <button type="submit">Zapisz Zmiany</button>
+        </form>
+    
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <br>
+        <a href="{{ url_for('admin_bazy') }}">Powrót do poprzedniego ekranu</a>
+    </div>
+</body>
+</html>

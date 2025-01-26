@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj Rezerwacje</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, button {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: green;
+            text-align: center;
+        }
+        .error {
+            margin-top: 20px;
+            font-size: 14px;
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edytuj Rezerwację: {{ rezerwacja.unikalny_kod }}</h1>
+        
+        <!-- Formularz do edytowania rezerwacji -->
+        <form method="POST">
+            <label for="klient_id">Klient:</label>
+            <select id="klient_id" name="klient_id">
+                {% for klient in klienci %}
+                <option value="{{ klient.id }}" {% if klient.id == rezerwacja.klient_id %}selected{% endif %}>{{ klient.imie }} {{ klient.nazwisko }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="seans_id">Seans:</label>
+            <select id="seans_id" name="seans_id">
+                {% for seans in seanse %}
+                <option value="{{ seans.id }}" {% if seans.id == rezerwacja.seans_id %}selected{% endif %}>{{ seans.film.tytul }} - {{ seans.data }} {{ seans.godzina }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="miejsca">Miejsca:</label>
+            <input type="text" id="miejsca" name="miejsca" value="{{ rezerwacja.miejsca }}" required>
+    
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status" value="{{ rezerwacja.status }}" required>
+    
+            <button type="submit">Zapisz Zmiany</button>
+        </form>
+    
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        
+        <br>
+        <a href="{{ url_for('admin_bazy') }}">Powrót do poprzedniego ekranu</a>
+    </div>
+</body>
+</html>

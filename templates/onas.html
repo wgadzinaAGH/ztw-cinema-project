@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absolute Cinema</title>
+    <title>O nas - Absolute Cinema</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -68,6 +67,26 @@
             background-color: #004d99;
             color: #ffffff;
         }    
+        .header-image {
+            width: 100%;
+            height: auto;
+        }
+        .team-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffffff;
+        }
+        .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #000428, #004e92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -93,20 +112,38 @@
         </div>
     </nav>
 
-    <header class="container-fluid py-5 text-center text-white" style="background-color: #121212;">
-        <img src="static/images//interstellar.png" alt="Interstellar" class="img-fluid">
+    <header class="container-fluid py-5 text-center">
+        <h1>O NAS</h1>
+        <img src="static/images/kino.png" alt="ABSOLUTE CINEMA" width="1300px" height="600px">
     </header>
 
     <main class="container py-5">
-        <h2 class="text-center mb-4">Co gramy dla Ciebie</h2>
-        <div class="d-flex justify-content-left mb-4">
-            <button id="dzis" class="btn btn-outline me-3"></button>
-            <button class="btn btn-outline me-3">Jutro</button>
-            <button class="btn btn-outline">Cały tydzień</button>
-        </div>
+        <section class="mb-5">
+            <p>
+                Jesteśmy gospodarzem wielu premier, festiwali, przeglądów i spotkań autorskich. Na swojej scenie, podczas spektakli czy koncertów, gościmy twórców najwyższego formatu. Jako prekursorzy cyklu, od lat organizujemy transmisje z MET Opera w Nowym Jorku.
+            </p>
+            <p>
+                Oryginalny charakter przestrzeni kina nadają zabytkowa mozaika we foyer oraz przedmioty związane ze światem filmu (plakaty, fotosy, projektory i sprzęt kinowy). Na szczególną uwagę zasługuje replika statuetki Oscara, wręczonej Andrzejowi Wajdzie w 2000 r., znajdująca się w foyer kina.
+            </p>
+        </section>
 
-        <div id="film-el" class="row row-cols-1 row-cols-md-3 g-4"></div>
-    
+        <section>
+            <h2 class="text-center">NASZA ZAŁOGA</h2>
+            <div class="d-flex justify-content-center gap-4 mt-4">
+                <div class="team-member">
+                    <div class="circle">Ja</div>
+                    <p>Ja</p>
+                </div>
+                <div class="team-member">
+                    <div class="circle">Diana</div>
+                    <p>Diana</p>
+                </div>
+                <div class="team-member">
+                    <div class="circle">Wojtek</div>
+                    <p>Wojtek</p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="text-center py-4">
@@ -132,53 +169,6 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $.ajax({
-                url: 'http://127.0.0.1:5000/api/filmy', // URL API
-                method: 'GET',
-                success: function (response) {
-                    
-                    let filmy = response
-
-                    function displayFilms (film) { 
-                        $('#film-el').append(`
-                            <div class="col">
-                                <div class="card h-100">
-                                <div class="image-container">
-                                    <img src="${film.plakat_url}" class="card-img-top" alt="${film.tytul}">
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">${film.tytul}</h5>
-                                    <p class="card-text"><b>${film.gatunek} | ${film.dlugosc} min</b><br>${film.opis}<br></p>
-                                    <a href="#" class="btn">Zarezerwuj bilet</a>
-                                </div>
-                            </div>   
-                        `)
-                    }
-                    for (let i in filmy) {
-                        let film = filmy[i]
-                        displayFilms(film);
-                    }
-
-                }
-            })
-
-            $('#dzis').text(function () {
-                function dzisiejszaData() {
-                    const dzisiaj = new Date(); // Pobieramy dzisiejszą datę
-                    const dzien = ("0" + dzisiaj.getDate()).slice(-2); // Dzień w formacie 2-cyfrowym
-                    const miesiac = ("0" + (dzisiaj.getMonth() + 1)).slice(-2); // Miesiąc w formacie 2-cyfrowym
-                    const rok = dzisiaj.getFullYear(); // Rok
-
-                    return `${dzien}.${miesiac}.`; // Format daty: dd-mm-rrrr
-                }
-
-                return 'Dziś (' + dzisiejszaData() + ')';
-            })
-        })            
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

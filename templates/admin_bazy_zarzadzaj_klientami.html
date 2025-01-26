@@ -47,7 +47,6 @@
             font-weight: normal;
         }
 
-        /* Stopka */
         .footer {
             background-color: lightgray;
             color: #333;
@@ -57,15 +56,15 @@
             flex-shrink: 0;
         }
 
-        /* Kontener */
         .container {
-            max-width: 600px;
-            margin: 50px auto;
+            min-width: 600px;
+            margin-top: 50px;
             padding: 20px;
             background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             flex-grow: 1;
+            align-self: center;
         }
 
         .breadcrumbs {
@@ -81,25 +80,54 @@
             color: #333333;
         }
 
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
         button {
-            padding: 40px;
+            padding: 15px;
             font-size: 18px;
             border: 1px solid #ccc;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
             background-color: black;
             color: white;
             width: 100%;
-            margin-bottom: 15px;
+            margin-top: 10px; /* Zwiększamy przestrzeń między przyciskiem a formularzem */
         }
 
         button:hover {
             background-color: #0056b3;
         }
 
-        /* Formularz do dodawania filmu */
-        .film-form {
-            display: none;
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: green;
         }
 
         /* Lista filmów */
@@ -120,10 +148,10 @@
         ul li a:hover {
             text-decoration: underline;
         }
+
     </style>
 </head>
 <body>
-    <!-- Pasek nawigacyjny -->
     <div class="navbar">
         <div class="logo">
             <img src="{{ url_for('static', filename='images/absolute_cinema_logo.png') }}" alt="Logo">
@@ -135,28 +163,42 @@
     </div>
 
     <div class="breadcrumbs">
-        <h1>Panel Administracyjny</h1>
+        <a href="{{ url_for('admin_bazy')}}"> &lt; wróć</a>
+        <h1>KLIENCI</h1>
     </div>
 
     <div class="container">
-        <div>
-            <button>Sprawdź rezerwację</button>
-            <button>Usuń rezerwację</button>
-            <button>Zmień rezerwację</button>
-        </div>
-        
-        <div>
-            <a href="{{ url_for('admin_bazy') }}">
-                <button id="manageMoviesButton">Bazy</button>
-            </a>
-        </div>
-
+        <form method="POST">
+            <label for="imie">Imię:</label>
+            <input type="text" id="imie" name="imie" required>
+    
+            <label for="nazwisko">Nazwisko:</label>
+            <input type="text" id="nazwisko" name="nazwisko" required>
+    
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required>
+    
+            <button class="dark" type="submit">Dodaj Klienta</button>
+        </form>
+    
+        <h2>Klienci w bazie</h2>
+        <ul>
+            {% for klient in klienci %}
+            <li>
+                <strong>{{ klient.imie }} {{ klient.nazwisko }}</strong> - {{ klient.email }}
+                <a href="{{ url_for('edytuj_klienta', klient_id=klient.id) }}">Edytuj</a> |
+                <a href="{{ url_for('usun_klienta', klient_id=klient.id) }}" onclick="return confirm('Na pewno chcesz usunąć tego klienta?')">Usuń</a>
+            </li>
+            {% endfor %}
+        </ul>
+    
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
     </div>
 
-    <!-- Stopka -->
     <div class="footer">
         <p>Absolute Cinema Admin Panel</p>
     </div>
-
 </body>
 </html>
