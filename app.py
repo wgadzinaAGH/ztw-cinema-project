@@ -1,20 +1,27 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import random
+import string
 # Inicjalizacja aplikacji Flask
 app = Flask(__name__)
 
 # Konfiguracja bazy danych
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///kino.db'
-
-# Inicjalizacja SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///default.db'
+app.config['SQLALCHEMY_BINDS'] = {
+    'filmy': 'sqlite:///filmy.db',
+    'seanse': 'sqlite:///seanse.db',
+    'klienci': 'sqlite:///klienci.db',
+    'rezerwacje': 'sqlite:///rezerwacje.db',
+    'administratorzy': 'sqlite:///administratorzy.db'
+}
 db = SQLAlchemy(app)
 
 # Tabela Filmy
 class Film(db.Model):
-    __tablename__ = 'filmy'
+    __bind_key__ = 'filmy'
     id = db.Column(db.Integer, primary_key=True)
     tytul = db.Column(db.String(150), nullable=False)
     opis = db.Column(db.Text, nullable=True)
@@ -23,11 +30,12 @@ class Film(db.Model):
     data_premiery = db.Column(db.Date, nullable=False)
     plakat_url = db.Column(db.String(1000), nullable=True)
 
-    seanse = db.relationship('Seans', backref='film', lazy=True) #db.relationship - służy do definiowania relacji między tabelami
+    def __repr__(self):
+        return f'<User {self.tytul}>'
 
 # Tabela Seanse
 class Seans(db.Model):
-    __tablename__ = 'seanse'
+    __bind_key__ = 'seanse'
     id = db.Column(db.Integer, primary_key=True)
     film_id = db.Column(db.Integer, db.ForeignKey('filmy.id'), nullable=False)  #ForeignKey tworzy relację między tabelą Seanse ( kolumna film_id), a tabelą Filmy.
     data = db.Column(db.Date, nullable=False)
@@ -35,21 +43,23 @@ class Seans(db.Model):
     sala = db.Column(db.String(10), nullable=False)
     cena = db.Column(db.Float, nullable=False)
 
-    rezerwacje = db.relationship('Rezerwacja', backref='seans', lazy=True)
+    def __repr__(self):
+        return f'<User {self.username}>'
 
 # Tabela Klienci
 class Klient(db.Model):
-    __tablename__ = 'klienci'
+    __bind_key__ = 'klienci'
     id = db.Column(db.Integer, primary_key=True)
     imie = db.Column(db.String(100), nullable=False)
     nazwisko = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
 
-    rezerwacje = db.relationship('Rezerwacja', backref='klient', lazy=True)
+    def __repr__(self):
+        return f'<User {self.username}>'
 
 # Tabela Rezerwacje
 class Rezerwacja(db.Model):
-    __tablename__ = 'rezerwacje'
+    __bind_key__ = 'rezerwacje'
     id = db.Column(db.Integer, primary_key=True)
     klient_id = db.Column(db.Integer, db.ForeignKey('klienci.id'), nullable=False)
     seans_id = db.Column(db.Integer, db.ForeignKey('seanse.id'), nullable=False)
@@ -57,19 +67,21 @@ class Rezerwacja(db.Model):
     status = db.Column(db.String(50), nullable=False)  # Status np. "potwierdzona", "anulowana"
     unikalny_kod = db.Column(db.String(100), unique=True, nullable=False)
 
+    def __repr__(self):
+        return f'<User {self.username}>'
+
 # Tabela Administratorzy
 class Administrator(db.Model):
-    __tablename__ = 'administratorzy'
+    __bind_key__ = 'administratorzy'
     id = db.Column(db.Integer, primary_key=True)
     imie = db.Column(db.String(100), nullable=False)
     nazwisko = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     haslo = db.Column(db.String(200), nullable=False)  # Hasło powinno być zaszyfrowane
     rola = db.Column(db.String(50), nullable=False)  # np. "zarządca", "pracownik kina"
+    def __repr__(self):
+        return f'<User {self.username}>'
 
-
-with app.app_context():
-    db.create_all()
 
 #Funkcja tworząca bazy danych
 #@app.before_first_request
@@ -210,6 +222,47 @@ def zarezerwuj_bilet(film_id, data, godzina, miejsce):
         return jsonify({'status': 'error', 'message': 'Nieprawidłowe dane wejściowe'}), 400
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Wystąpił błąd: {str(e)}'}), 500
+
+@app.route('/api/rezerwacja', methods=['POST'])
+def zarezerwuj_miejsce():
+
+    dane = request.json
+    print("Odebrano dane:", dane)
+    
+    data = request.json
+    seans_id = data.get('seans_id')
+    miejsca = data.get('miejsca')  # Lista miejsc np. ["1A", "1B"]
+    klient_id = data.get('klient_id')
+
+    if not seans_id or not miejsca or not klient_id:
+        return jsonify({'error': 'Brakuje danych wejściowych'}), 400
+
+    # Sprawdź, czy miejsca są już zajęte
+    zajete_miejsca = Rezerwacja.query.filter_by(seans_id=seans_id).all()
+    zajete_miejsca_set = set()
+    for rez in zajete_miejsca:
+        zajete_miejsca_set.update(rez.miejsca.split(', '))
+
+    if any(miejsce in zajete_miejsca_set for miejsce in miejsca):
+        return jsonify({'error': 'Jedno lub więcej miejsc jest już zajętych'}), 400
+
+    # Tworzenie nowej rezerwacji
+    unikalny_kod = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    nowa_rezerwacja = Rezerwacja(
+        klient_id=klient_id,
+        seans_id=seans_id,
+        miejsca=', '.join(miejsca),
+        status='potwierdzona',
+        unikalny_kod=unikalny_kod
+    )
+    db.session.add(nowa_rezerwacja)
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Rezerwacja zakończona sukcesem!',
+        'unikalny_kod': unikalny_kod,
+        'miejsca': miejsca
+    }), 200
 
 
 @app.route('/admin', methods=['GET'])
@@ -549,5 +602,5 @@ def usun_administratora(admin_id):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Tworzenie tabel w bazie danych
-    app.run(debug=True)  # Uruchomienie serwera
+        db.create_all(bind_key=['users', 'tickets', 'tickets_data'])
+        app.run(debug=True)

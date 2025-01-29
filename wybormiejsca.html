@@ -227,6 +227,9 @@
             </div>
         </div>
     <div class="btn-container">
+        <input type="hidden" id="seans-id" value="1"> <!-- Zmień wartość na ID aktualnego seansu -->
+        <input type="hidden" id="klient-id" value="123"> <!-- Zmień wartość na ID aktualnego klienta -->
+
         <button id="proceed-btn" class="btn btn-primary">Przejdź dalej</button>
         <button class="btn btn-secondary" onclick="window.location.href='index.html'">Wróć</button>
     </div>
@@ -292,22 +295,43 @@
         });
     
         // Obsługa kliknięcia przycisku "Przejdź dalej"
-        proceedButton.addEventListener('click', (e) => {
-            if (!selectedSeat) {
-                // Zablokuj domyślne działanie i wyświetl komunikat o błędzie
-                e.preventDefault();
+        proceedButton.addEventListener('click', async(e) => {
+            const selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(seat =>
+            seat.getAttribute('data-seat')
+            );
+            const seansId = document.getElementById('seans-id').value;
+            const klientId = document.getElementById('klient-id').value;
+
+            if (selectedSeats.length === 0) {
                 errorMessage.style.display = 'block';
-            } else {
-                // Przejście do następnej strony (usuń komunikat o błędzie, jeśli był)
-                errorMessage.style.display = 'none';
-                window.location.href = 'wyborbiletow.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/rezerwacja', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        seans_id: seansId,
+                        klient_id: klientId,
+                        miejsca: selectedSeats,
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(`Rezerwacja zakończona sukcesem! Kod: ${result.unikalny_kod}`);
+                    window.location.href = 'wyborbiletow.html'; // Zmień na odpowiedni adres
+                } else {
+                    alert(`Błąd rezerwacji: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Wystąpił błąd:', error);
+                alert('Wystąpił błąd podczas rezerwacji. ' + error);
             }
         });
     </script>
     
     </script>
-    
-
-
 </body>
 </html>
