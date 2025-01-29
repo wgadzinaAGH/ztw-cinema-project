@@ -1,6 +1,9 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, url_for, g
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import random
+import string
+
 # Inicjalizacja aplikacji Flask
 app = Flask(__name__)
 
@@ -71,22 +74,27 @@ class Administrator(db.Model):
 with app.app_context():
     db.create_all()
 
-#Funkcja tworząca bazy danych
-#@app.before_first_request
-#def create_tables():
-   # db.create_all()
+@app.before_request
+def load_database():
+    g.kino = {
+        "admin" : Administrator.query.all(), 
+        "film" : Film.query.all(), 
+        "rezerwacja" : Rezerwacja.query.all(),
+        "seans" : Seans.query.all(),
+        "klient" : Klient.query.all()
+    }
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', gKino = g.kino)
 
-@app.route('/onas', methods=['GET'])
+@app.route('/onas')
 def onas():
     return render_template('onas.html')
 
-@app.route('/repertuar', methods=['GET'])
+@app.route('/repertuar')
 def repertuar():
-    return render_template('repertuar.html')
+    return render_template('repertuar.html', gKino = g.kino)
 
 # Wyświetlanie wszystkich filmów lub konkretnego filmu
 @app.route('/api/filmy', methods=['GET'])
@@ -103,6 +111,20 @@ def get_filmy():
         'data_premiery': film.data_premiery.strftime('%Y-%m-%d'),
         'plakat_url': film.plakat_url
     } for film in filmy]), 200
+
+@app.route('/api/rezerwacja1', methods=['GET'])
+def get_rezerwacja():
+    # Pobranie wszystkich filmów
+    rezerwacje = Rezerwacja.query.all()
+    # Zwrócenie listy filmów w formacie JSON
+    return jsonify([{
+        'id': rezerwacja.id,
+        'klient_id': rezerwacja.klient_id,
+        'seans_id': rezerwacja.seans_id,
+        'miejsca': rezerwacja.miejsca,
+        'status': rezerwacja.status,
+        'unikalny_kod': rezerwacja.unikalny_kod
+    } for rezerwacja in rezerwacje]), 200
 
 @app.route('/api/film/<int:film_id>', methods=['GET'])
 def get_film(film_id):
@@ -212,14 +234,65 @@ def zarezerwuj_bilet(film_id, data, godzina, miejsce):
         return jsonify({'status': 'error', 'message': f'Wystąpił błąd: {str(e)}'}), 500
 
 
-@app.route('/admin', methods=['GET'])
+@app.route('/admin')
 def admin():
-    return render_template('admin.html')
+    return render_template('admin.html', gKino = g.kino)
 
 # wyświetlnanie, dodwanie, usuwanie, edycja rekordów do baz danych
 @app.route('/admin/bazy', methods=['GET'])
 def admin_bazy():
     return render_template('admin_bazy.html')
+
+@app.route('/podsumowanie')
+def podsumowanie():
+    return render_template('podsumowanie.html')
+
+@app.route('/dane_osobowe')
+def dane_osobowe():
+    return render_template('daneosobowe.html')
+
+@app.route('/wybor_biletow')
+def wybor_biletow():
+    return render_template('wyborbiletow.html')
+
+@app.route('/wybor_miejsca/<film_tytul>')
+def wybor_miejsca(film_tytul):
+    return render_template('wybormiejsca.html', gKino = g.kino, tytul = film_tytul)
+
+@app.route('/api/rezerwacja', methods=['POST'])
+def zarezerwuj_miejsce():
+    dane = request.json
+    print("Odebrano dane:", dane)
+    
+    data = request.json
+    seans_id = data.get('seans_id')
+    miejsca = data.get('miejsca')  # Lista miejsc np. ["1A", "1B"]
+    klient_id = data.get('klient_id')
+    if not seans_id or not miejsca or not klient_id:
+        return jsonify({'error': 'Brakuje danych wejściowych'}), 400
+    # Sprawdź, czy miejsca są już zajęte
+    zajete_miejsca = Rezerwacja.query.filter_by(seans_id=seans_id).all()
+    zajete_miejsca_set = set()
+    for rez in zajete_miejsca:
+        zajete_miejsca_set.update(rez.miejsca.split(', '))
+    if any(miejsce in zajete_miejsca_set for miejsce in miejsca):
+        return jsonify({'error': 'Jedno lub więcej miejsc jest już zajętych'}), 400
+    # Tworzenie nowej rezerwacji
+    unikalny_kod = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    nowa_rezerwacja = Rezerwacja(
+        klient_id=klient_id,
+        seans_id=seans_id,
+        miejsca=', '.join(miejsca),
+        status='potwierdzona',
+        unikalny_kod=unikalny_kod
+    )
+    db.session.add(nowa_rezerwacja)
+    db.session.commit()
+    return jsonify({
+        'message': 'Rezerwacja zakończona sukcesem!',
+        'unikalny_kod': unikalny_kod,
+        'miejsca': miejsca
+    }), 200
 
 @app.route('/admin/bazy/zarzadzaj_filmami', methods=['GET', 'POST'])
 def zarzadzaj_filmami():
