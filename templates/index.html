@@ -21,7 +21,7 @@
             display: flex;
             justify-content: center;
             align-items:start;
-            background-color: #f4f4f9; /* Tło dla obrazków */
+            background-color: #f4f4f900; /* Tło dla obrazków */
         }
         .image-container img {
             max-width: 100%;
@@ -43,7 +43,7 @@
         }
         .card-body {
             flex-grow: 1;
-            height: 300px;
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content:start;
@@ -73,8 +73,12 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Absolute Cinema</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" 
+                     alt="Absolute Cinema" width="40" height="40" class="d-inline-block align-text-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -86,7 +90,7 @@
                         <a class="nav-link" href="{{ url_for('onas') }}">O nas</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Kontakt</a>
+                        <a class="nav-link" href="{{ url_for('kontakt') }}">Kontakt</a>
                     </li>
                 </ul>
             </div>
@@ -94,7 +98,7 @@
     </nav>
 
     <header class="container-fluid py-5 text-center text-white" style="background-color: #121212;">
-        <img src="static/images//interstellar.png" alt="Interstellar" class="img-fluid">
+        <img src="static/images/hero.png" alt="Interstellar" class="img-fluid">
     </header>
 
     <main class="container py-5">
@@ -141,35 +145,80 @@
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: '/api/filmy',
+                url: '/api/seanse',
                 method: 'GET',
-                success: function (response) {
+                success: function (response1) {
                     
-                    let filmy = response
+                    $.ajax({
+                        url: '/api/filmy',
+                        method: 'GET',
+                        success: function (response2) {
+                    
+                            let seanse = response1;
+                            console.log(seanse);
 
-                    function displayFilms (film) { 
-                        $('#film-el').append(`
-                            <div class="col">
-                                <div class="card h-100">
-                                <div class="image-container">
-                                    <img src="${film.plakat_url}" class="card-img-top" alt="${film.tytul}">
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">${film.tytul}</h5>
-                                    <p class="card-text"><b>${film.gatunek} | ${film.dlugosc} min</b><br>${film.opis}<br></p>
-                                    <a href="/wybor_miejsca/${film.tytul}" class="btn">Zarezerwuj bilet</a>
-                                </div>
-                            </div>   
-                        `)
-                    }
-                    for (let i in filmy) {
-                        let film = filmy[i]
-                        displayFilms(film);
-                    }
+                            let filmy = response2;
+                            console.log(filmy);
 
+                            let idFilmowZSeansow = [];
+                            for (let i in seanse) {
+                                let idSeansu = seanse[i].id;
+                                let idFilmu = seanse[i].film_id;
+                                idFilmowZSeansow.push({idSeansu, idFilmu});
+                            }
+                            console.log(idFilmowZSeansow);
+
+                            let seanseZDanymiFilmow = [];
+                            for (i in idFilmowZSeansow)
+                            {
+                                let idSeansu = idFilmowZSeansow[i].idSeansu;
+                                let idFilmu = idFilmowZSeansow[i].idFilmu;
+                                let data = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].data;
+                                let godzina = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].godzina;
+                                let cena = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].cena;
+                                let sala = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].sala;
+                                let plakat_url = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].plakat_url;
+                                let tytul = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].tytul;
+                                let gatunek = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].gatunek;
+                                let opis = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].opis;
+                                let dlugosc = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].dlugosc;
+
+                                seanseZDanymiFilmow.push({idSeansu, idFilmu, data, godzina, cena, sala, plakat_url, tytul, gatunek, opis, dlugosc});
+                            }
+                            console.log(seanseZDanymiFilmow);
+                        
+
+                            function displayFilms (film) { 
+
+                                let dzien = film.data.slice(-2);
+                                let msc = film.data.slice(-5, -3);
+                                let data = String(dzien) + '.' + String(msc) + '.';
+
+
+                                $('#film-el').append(`
+                                    <div class="col">
+                                        <div class="card h-100">
+                                        <div class="image-container">
+                                            <img src="${film.plakat_url}" class="card-img-top" alt="${film.tytul}">
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><b>${film.tytul}</b></h5>
+                                            <div><b>${data} godz. ${film.godzina}</b></div>
+                                            <p class="card-text"><i>${film.gatunek} | ${film.dlugosc} min</i><br>${film.opis}<br><br></p>
+                                            <a href="/wybor_miejsca/${film.idSeansu}/${film.tytul}/${data}/${film.godzina}/${film.sala}" class="btn">Zarezerwuj bilet</a>
+                                        </div>
+                                    </div>   
+                                `)
+                            }
+                            for (let i in seanseZDanymiFilmow) {
+                                let seansFilm = seanseZDanymiFilmow[i]
+                                displayFilms(seansFilm);
+                            }
+                        }
+                    })
                 }
             })
-
+            
             $('#dzis').text(function () {
                 function dzisiejszaData() {
                     const dzisiaj = new Date(); // Pobieramy dzisiejszą datę
@@ -182,6 +231,7 @@
 
                 return 'Dziś (' + dzisiejszaData() + ')';
             })
+
         })            
     </script>
 </body>

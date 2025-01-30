@@ -21,7 +21,7 @@
             display: flex;
             justify-content: center;
             align-items:start;
-            background-color: #f4f4f9; /* Tło dla obrazków */
+            background-color: #f4f4f900; /* Tło dla obrazków */
         }
         .image-container img {
             max-width: 100%;
@@ -43,7 +43,7 @@
         }
         .card-body {
             flex-grow: 1;
-            height: 300px;
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content:start;
@@ -73,8 +73,12 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Absolute Cinema</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" 
+                     alt="Absolute Cinema" width="40" height="40" class="d-inline-block align-text-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -86,7 +90,7 @@
                         <a class="nav-link" href="{{ url_for('onas') }}">O nas</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Kontakt</a>
+                        <a class="nav-link" href="{{ url_for('kontakt') }}">Kontakt</a>
                     </li>
                 </ul>
             </div>
@@ -143,7 +147,6 @@
                                 <div class="card-body">
                                     <h5 class="card-title">${film.tytul}</h5>
                                     <p class="card-text"><b>${film.gatunek} | ${film.dlugosc} min</b><br>${film.opis}<br></p>
-                                    <a href="#" class="btn">Zarezerwuj bilet</a>
                                 </div>
                             </div>   
                         `)
