@@ -1,16 +1,21 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, g
+from flask import Flask, request, Response, jsonify, render_template, redirect, url_for, g, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from werkzeug.security import check_password_hash
 import random
 import string
+import logging
+
 
 # Inicjalizacja aplikacji Flask
 app = Flask(__name__)
 
 # Konfiguracja bazy danych
+app.logger.setLevel(logging.INFO)
+app.config['SECRET_KEY'] = 'sekret'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///kino.db'
+
 
 # Inicjalizacja SQLAlchemy
 db = SQLAlchemy(app)
@@ -238,9 +243,113 @@ def zarezerwuj_bilet(film_id, data, godzina, miejsce):
         return jsonify({'status': 'error', 'message': f'Wystąpił błąd: {str(e)}'}), 500
 
 
+# Lista dozwolonych użytkowników
+ADMIN_CREDENTIALS = {
+    "admin@ac.com": "123456",
+    "pracownik@ac.com": "kino2025",
+    "admin": "admin"
+}
+
+def check_auth(username, password):
+    """Sprawdza, czy podane dane są poprawne"""
+    return username in ADMIN_CREDENTIALS and ADMIN_CREDENTIALS[username] == password
+
+def authenticate():
+    """Zwraca nagłówek 401, który powoduje wyświetlenie okienka logowania"""
+    return Response(
+        'Podaj poprawne dane logowania.', 401,
+        {'WWW-Authenticate': 'Basic realm="Admin Panel"'}
+    )
+
 @app.route('/admin')
 def admin():
-    return render_template('admin.html', gKino = g.kino)
+    auth = request.authorization
+    if not auth or not check_auth(auth.username, auth.password):
+        return authenticate()
+
+    return render_template('admin.html', username=auth.username, gKino = g.kino)  # Panel administracyjny
+
+@app.route('/admin/logout')
+def logout():
+    """Wylogowanie użytkownika"""
+    return redirect(url_for('admin'))
+
+@app.route('/admin/sprawdz-rezerwacje', methods=['GET', 'POST'])
+def sprawdz_rezerwacje():
+    rezerwacja = None
+    message = None
+    if request.method == 'POST':
+        unikalny_kod = request.form.get('unikalny_kod')
+        
+        # Sprawdzamy, czy rezerwacja istnieje
+        rezerwacja = Rezerwacja.query.filter_by(unikalny_kod=unikalny_kod).first()
+        
+        if not rezerwacja:
+            message = "Nie znaleziono rezerwacji o podanym kodzie."
+        # W przeciwnym razie, rezerwacja została znaleziona i wyświetlamy jej szczegóły
+        
+    return render_template('sprawdz_rezerwacje.html', rezerwacja=rezerwacja, message=message)
+
+@app.route('/admin/usun-rezerwacje', methods=['GET', 'POST'])
+def usun_rezerwacje_menu():
+    if request.method == 'POST':
+        # Pobieramy unikalny kod z formularza
+        unikalny_kod = request.form.get('unikalny_kod')
+
+        if not unikalny_kod:
+            flash('Proszę podać kod rezerwacji.', 'error')
+            return redirect(url_for('usun_rezerwacje_menu'))
+
+        # Szukamy rezerwacji po unikalnym kodzie
+        rezerwacja = Rezerwacja.query.filter_by(unikalny_kod=unikalny_kod).first()
+
+        if not rezerwacja:
+            flash('Rezerwacja o podanym kodzie nie istnieje.', 'error')
+        else:
+            db.session.delete(rezerwacja)
+            db.session.commit()
+            flash('Rezerwacja została usunięta!', 'success')
+
+        return redirect(url_for('usun_rezerwacje_menu'))
+
+    # Pobieramy wszystkie rezerwacje, by je wyświetlić
+    rezerwacje = Rezerwacja.query.all()
+    return render_template('usun_rezerwacje.html', rezerwacje=rezerwacje)
+
+
+@app.route('/admin/zmien-rezerwacje', methods=['GET', 'POST'])
+def zmien_rezerwacje():
+    if request.method == 'POST':
+        unikalny_kod = request.form.get('unikalny_kod')
+        
+        # Szukamy rezerwacji według kodu
+        rezerwacja = Rezerwacja.query.filter_by(unikalny_kod=unikalny_kod).first()
+        
+        if not rezerwacja:
+            flash('Nie znaleziono rezerwacji o podanym kodzie.', 'error')
+            return redirect(url_for('zmien_rezerwacje'))
+        
+        return redirect(url_for('zmien_rezerwacje_form', rezerwacja_id=rezerwacja.id))
+    
+    return render_template('zmien_rezerwacje.html')
+
+@app.route('/admin/zmien-rezerwacje/<int:rezerwacja_id>', methods=['GET', 'POST'])
+def zmien_rezerwacje_form(rezerwacja_id):
+    rezerwacja = Rezerwacja.query.get(rezerwacja_id)
+    
+    if not rezerwacja:
+        flash('Rezerwacja nie istnieje!', 'error')
+        return redirect(url_for('zmien_rezerwacje'))
+    
+    if request.method == 'POST':
+        # Pobieramy dane z formularza
+        rezerwacja.miejsca = request.form.get('nowe_miejsca')
+        rezerwacja.status = request.form.get('status')
+        db.session.commit()
+        flash('Rezerwacja została zmieniona!', 'success')
+        return redirect(url_for('sprawdz_rezerwacje'))
+    
+    return render_template('zmien_rezerwacje_form.html', rezerwacja=rezerwacja)
 
 # wyświetlnanie, dodwanie, usuwanie, edycja rekordów do baz danych
 @app.route('/admin/bazy', methods=['GET'])

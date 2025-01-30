@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absolute Cinema Admin Panel</title>
+    <title>Usuń rezerwację</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,10 +12,9 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            height: 100vh; /* Ustala, że body ma pełną wysokość okna */
+            height: 100vh;
         }
-        
-        /* Pasek nawigacyjny */
+
         .navbar {
             background-color: #333;
             color: white;
@@ -24,15 +23,9 @@
             justify-content: space-between;
             align-items: center;
         }
-        
-        /* Logo w pasku nawigacyjnym */
-        .navbar .logo {
-            display: flex;
-            align-items: center;
-        }
 
         .navbar .logo img {
-            height: 40px; /* Możesz dostosować wielkość logo */
+            height: 40px;
             margin-right: 10px;
         }
 
@@ -41,13 +34,6 @@
             font-weight: bold;
         }
 
-        /* Dowolny tekst zamiast ID użytkownika */
-        .navbar .user-id {
-            font-size: 16px;
-            font-weight: normal;
-        }
-
-        /* Stopka */
         .footer {
             background-color: lightgray;
             color: #333;
@@ -57,7 +43,6 @@
             flex-shrink: 0;
         }
 
-        /* Kontener */
         .container {
             max-width: 600px;
             margin: 50px auto;
@@ -82,7 +67,7 @@
         }
 
         button {
-            padding: 40px;
+            padding: 20px;
             font-size: 18px;
             border: 1px solid #ccc;
             border-radius: 10px;
@@ -96,73 +81,38 @@
         button:hover {
             background-color: #0056b3;
         }
-
-        /* Formularz do dodawania filmu */
-        .film-form {
-            display: none;
-        }
-
-        /* Lista filmów */
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        ul li {
-            margin-bottom: 10px;
-        }
-
-        ul li a {
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        ul li a:hover {
-            text-decoration: underline;
-        }
     </style>
 </head>
 <body>
-    <!-- Pasek nawigacyjny -->
     <div class="navbar">
         <div class="logo">
             <img src="{{ url_for('static', filename='images/absolute_cinema_logo.png') }}" alt="Logo">
             <span>Absolute Cinema Admin Panel</span>
         </div>
         <div class="user-id">
-            Zalogowany jako: <strong>{{ username }}</strong>
+            {{ session['admin_email'] }}
         </div>
     </div>
 
     <div class="breadcrumbs">
-        <h1>Panel Administracyjny</h1>
+        <a href="{{ url_for('admin')}}"> &lt; wróć</a>
+        <h1>Usuń Rezerwację</h1>
     </div>
 
     <div class="container">
-        <div>
-            <a href="{{ url_for('sprawdz_rezerwacje') }}">
-                <button>Sprawdź rezerwację</button>
-            </a>
-            <a href="{{ url_for('usun_rezerwacje_menu') }}">
-                <button>Usuń rezerwację</button>
-            </a>
-            <a href="{{ url_for('zmien_rezerwacje') }}">
-                <button>Zmień rezerwację</button>
-            </a>
-            <a href="{{ url_for('admin_bazy') }}">
-                <button id="manageMoviesButton">Bazy</button>
-            </a>
-        </div>
+        <form method="POST">
+            <label for="unikalny_kod">Kod rezerwacji:</label>
+            <input type="text" id="unikalny_kod" name="unikalny_kod" required>
+            <button type="submit">Usuń</button>
+        </form>
 
+        {% if message %}
+        <div class="message">{{ message }}</div>
+        {% endif %}
     </div>
 
-    <!-- Stopka -->
     <div class="footer">
         <p>Absolute Cinema Admin Panel</p>
-        <form action="{{ url_for('logout') }}" method="get">
-            <button type="submit">Wyloguj się</button>
-        </form>
     </div>
-
 </body>
 </html>
