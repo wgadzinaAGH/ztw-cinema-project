@@ -194,7 +194,7 @@
         <ul>
             {% for film in filmy %}
             <li>
-                <strong>{{ film.tytul }} ({{ film.data_premiery.strftime('%Y') }})</strong> - {{ film.gatunek }} 
+                <strong>{{ film.id }}   {{ film.tytul }} ({{ film.data_premiery.strftime('%Y') }})</strong> - {{ film.gatunek }} 
                 <a href="{{ url_for('edytuj_film', film_id=film.id) }}">Edytuj</a> |
                 <a href="{{ url_for('usun_film', film_id=film.id) }}" onclick="return confirm('Na pewno chcesz usunąć ten film?')">Usuń</a>
             </li>

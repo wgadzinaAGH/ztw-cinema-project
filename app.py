@@ -255,9 +255,9 @@ def dane_osobowe():
 def wybor_biletow():
     return render_template('wyborbiletow.html')
 
-@app.route('/wybor_miejsca/<film_tytul>')
-def wybor_miejsca(film_tytul):
-    return render_template('wybormiejsca.html', gKino = g.kino, tytul = film_tytul)
+@app.route('/wybor_miejsca/<int:film_id>/<film_tytul>')
+def wybor_miejsca(film_id, film_tytul):
+    return render_template('wybormiejsca.html', gKino=g.kino, tytul=film_tytul, film_id=film_id)
 
 @app.route('/api/rezerwacja', methods=['POST'])
 def zarezerwuj_miejsce():
@@ -423,7 +423,7 @@ def usun_seans(seans_id):
         message = "Seans został pomyślnie usunięty!"
     except Exception as e:
         db.session.rollback()
-        message = f"Wystąpił błąd: {str(e)}"
+        message = f"Wystąpił błąd: {seans_id}  {str(e)}"
 
     return redirect(url_for('zarzadzaj_seansami', message=message))
 

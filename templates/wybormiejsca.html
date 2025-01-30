@@ -229,6 +229,8 @@
     <div class="btn-container">
         <input type="hidden" id="seans-id" value="1"> <!-- Zmień wartość na ID aktualnego seansu -->
         <input type="hidden" id="klient-id" value="123"> <!-- Zmień wartość na ID aktualnego klienta -->
+        
+        <input type="hidden" id="film-id" value="{{ film_id }}">
 
         <button id="proceed-btn" class="btn btn-primary">Przejdź dalej</button>
         <button class="btn btn-secondary" onclick="window.location.href='/'">Wróć</button>
@@ -277,96 +279,113 @@
     <script>
         try {
             $(document).ready(function () {
+                const filmId = document.getElementById('film-id').value;
                 $.ajax({
-                    url: '/api/rezerwacja1',
+                    url: '/api/seanse',
                     method: 'GET',
-                    success: function (response) {
-                        try {
-                            // Pobierz elementy z DOM
-                            const seats = document.querySelectorAll('.seat');
-                            const proceedButton = document.getElementById('proceed-btn');
-                            const errorMessage = document.getElementById('error-message');
-                            let selectedSeat = null;
-                            let rezerwacje = response;
-                            let lista_zajete= [];
-                            console.log(rezerwacje);
-                            rezerwacje.forEach(rezerwacja =>{
-                                lista_zajete.push(rezerwacja.miejsca);
-                            })
-                            console.log(lista_zajete);
+                    success: function (seanseResponse) {
+                        let seanse = seanseResponse.filter(seans => seans.film_id == filmId);
+                        if (seanse.length === 0) {
+                            console.log("Brak seansów dla tego filmu");
+                            return;
+                        }
+    
+                        let seansIds = seanse.map(seans => seans.id); 
+                        $.ajax({
+                            url: '/api/rezerwacja1',
+                            method: 'GET',
+                            success: function (rezerwacjeResponse) {
+
+                                let rezerwacje = rezerwacjeResponse.filter(rezerwacja => seansIds.includes(rezerwacja.seans_id));
+                                // INFO jeśli ktos zrobi dwa seanse na jeden film to lista rezerwacji ( w tym miejsca zajete) będa wyswietlane dla tych dwoch seansow na raz
+
+                            // DLA KILKU MIEJSC rezerwacje.forEach(rezerwacja => {lista_zajete.push(...rezerwacja.miejsca.split(','));                            
                             
-                            // Dodaj nasłuchiwanie zdarzeń do każdego miejsca
-                            seats.forEach(seat => {
-
-                                if(lista_zajete.includes(seat.getAttribute('data-seat'))){
-                                    seat.classList.toggle('taken');
-                                }
-
-                                seat.addEventListener('click', () => {
-                                    // Usuń zaznaczenie z innych miejsc
-                                    seats.forEach(s => s.classList.remove('selected'));
-    
-                                    if (!seat.classList.contains('taken')) {
-                                        seat.classList.toggle('selected');
-                                    }
-    
-                                    // Oznacz wybrane miejsce
-                                    selectedSeat = seat.getAttribute('data-seat');
-    
-                                    // Ukryj komunikat o błędzie, jeśli wcześniej był widoczny
-                                    errorMessage.style.display = 'none';
-                                });
-                            });
-    
-                            // Obsługa kliknięcia przycisku "Przejdź dalej"
-                            proceedButton.addEventListener('click', async (e) => {
                                 try {
-                                    const selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(seat =>
-                                        seat.getAttribute('data-seat')
-                                    );
-                                    const seansId = document.getElementById('seans-id').value;
-                                    const klientId = document.getElementById('klient-id').value;
-    
-                                    console.log(selectedSeats, seansId, klientId);
-    
-                                    if (selectedSeats.length === 0) {
-                                        errorMessage.style.display = 'block';
-                                        return;
-                                    }
-    
-                                    const response = await fetch("/api/rezerwacja", {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({
-                                            seans_id: seansId,
-                                            klient_id: klientId,
-                                            miejsca: selectedSeats,
-                                        }),
+                                    // Pobierz elementy z DOM
+                                    const seats = document.querySelectorAll('.seat');
+                                    const proceedButton = document.getElementById('proceed-btn');
+                                    const errorMessage = document.getElementById('error-message');
+                                    let selectedSeat = null;
+                                    let lista_zajete = [];
+                                    rezerwacje.forEach(rezerwacja => {
+                                        lista_zajete.push(rezerwacja.miejsca);
                                     });
     
-                                    const result = await response.json();
+                                    // Dodaj nasłuchiwanie zdarzeń do każdego miejsca
+                                    seats.forEach(seat => {
+                                        if (lista_zajete.includes(seat.getAttribute('data-seat'))) {
+                                            
+                                            seat.classList.toggle('taken');
+                                        }
     
-                                    if (response.ok) {
-                                        alert(`Rezerwacja zakończona sukcesem! Kod: ${result.unikalny_kod}`);
-                                        window.location.href = '/wybor_biletow';
-                                    } else {
-                                        alert(`Błąd rezerwacji: ${result.error}`);
-                                    }
+                                        seat.addEventListener('click', () => {
+                                            // Usuń zaznaczenie z innych miejsc
+                                            seats.forEach(s => s.classList.remove('selected'));
+    
+                                            if (!seat.classList.contains('taken')) {
+                                                seat.classList.toggle('selected');
+                                            }
+    
+                                            // Oznacz wybrane miejsce
+                                            selectedSeat = seat.getAttribute('data-seat');
+    
+                                            // Ukryj komunikat o błędzie, jeśli wcześniej był widoczny
+                                            errorMessage.style.display = 'none';
+                                        });
+                                    });
+    
+                                    // Obsługa kliknięcia przycisku "Przejdź dalej"
+                                    proceedButton.addEventListener('click', async (e) => {
+                                        try {
+                                            const selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(seat =>
+                                                seat.getAttribute('data-seat')
+                                            );
+                                            const klientId = document.getElementById('klient-id').value;
+    
+    
+                                            if (selectedSeats.length === 0) {
+                                                errorMessage.style.display = 'block';
+                                                return;
+                                            }
+                                            const response = await fetch("/api/rezerwacja", {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({
+                                                    seans_id: seansIds[0],// INFO Jakby ktos zrobil dwa seanse na jeden film to tutaj rezerwacja zawsze przechodzi na 'pierwszy' seans
+                                                    klient_id: klientId,
+                                                    miejsca: selectedSeats,
+                                                }),
+                                            });
+    
+                                            const result = await response.json();
+    
+                                            if (response.ok) {
+                                                alert(`Rezerwacja zakończona sukcesem! Kod: ${result.unikalny_kod}`);
+                                                window.location.href = '/wybor_biletow';
+                                            } else {
+                                                alert(`Błąd rezerwacji: ${result.error}`);
+                                            }
+                                        } catch (error) {
+                                            console.error('Błąd rezerwacji:', error);
+                                            alert('Wystąpił błąd podczas rezerwacji: ' + error.message);
+                                        }
+                                    });
                                 } catch (error) {
-                                    console.error('Błąd rezerwacji:', error);
-                                    alert('Wystąpił błąd podczas rezerwacji: ' + error.message);
+                                    console.error("Błąd podczas przetwarzania danych:", error);
+                                    alert("Wystąpił błąd podczas przetwarzania danych: " + error.message);
                                 }
-                            });
-                        } catch (error) {
-                            console.error("Błąd podczas przetwarzania danych:", error);
-                            alert("Wystąpił błąd podczas przetwarzania danych: " + error.message);
-                        }
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("Błąd AJAX:", status, error);
+                                alert("Nie udało się pobrać danych. Spróbuj ponownie później.");
+                            }
+                        });
                     },
-                    error: function (xhr, status, error) {
-                        console.error("Błąd AJAX:", status, error);
-                        alert("Nie udało się pobrać danych. Spróbuj ponownie później.");
+                    error: function (err) {
+                        console.error("Błąd podczas pobierania seansów", err);
                     }
                 });
             });

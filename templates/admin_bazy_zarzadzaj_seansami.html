@@ -191,7 +191,7 @@
         <ul>
             {% for seans in seanse %}
             <li>
-                <strong>Film ID: {{ seans.film_id }}</strong> | Data: {{ seans.data }} | Godzina: {{ seans.godzina }} | Sala: {{ seans.sala }} | Cena: {{ seans.cena }} PLN
+                <strong>Seans ID: {{ seans.id }}  |  film id: {{ seans.film_id }}</strong> | Data: {{ seans.data }} | Godzina: {{ seans.godzina }} | Sala: {{ seans.sala }} | Cena: {{ seans.cena }} PLN
                 <a href="{{ url_for('edytuj_seans', seans_id=seans.id) }}">Edytuj</a> |
                 <a href="{{ url_for('usun_seans', seans_id=seans.id) }}" onclick="return confirm('Na pewno chcesz usunąć ten seans?')">Usuń</a>
             </li>
