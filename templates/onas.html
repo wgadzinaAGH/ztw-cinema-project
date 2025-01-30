@@ -87,13 +87,69 @@
             align-items: center;
             margin-bottom: 10px;
         }
+
+        .team {
+            text-align: center;
+            padding: 40px 20px;
+            
+            }
+
+            .team-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 30px;
+            }
+
+            .team-members {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            }
+
+            .team-member {
+            text-align: center;
+            max-width: 200px;
+            }
+
+            .member-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            background-color: #000; /* fallback in przypadku braku zdjęcia */
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .member-photo:hover {
+                box-shadow: 8px 8px 20px rgba(118, 118, 118, 0.3);
+            }
+
+            .member-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+            }
+
+            .member-description {
+            font-size: 14px;
+            color: #ffffff;
+            line-height: 1.5;
+}
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Absolute Cinema</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" 
+                     alt="Absolute Cinema" width="40" height="40" class="d-inline-block align-text-top">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -105,7 +161,7 @@
                         <a class="nav-link" href="{{ url_for('onas') }}">O nas</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Kontakt</a>
+                        <a class="nav-link" href="{{ url_for('kontakt') }}">Kontakt</a>
                     </li>
                 </ul>
             </div>
@@ -127,23 +183,32 @@
             </p>
         </section>
 
-        <section>
-            <h2 class="text-center">NASZA ZAŁOGA</h2>
-            <div class="d-flex justify-content-center gap-4 mt-4">
-                <div class="team-member">
-                    <div class="circle">Ja</div>
-                    <p>Ja</p>
-                </div>
-                <div class="team-member">
-                    <div class="circle">Diana</div>
-                    <p>Diana</p>
-                </div>
-                <div class="team-member">
-                    <div class="circle">Wojtek</div>
-                    <p>Wojtek</p>
-                </div>
+        <section class="team">
+            <h2 class="team-title">NASZA ZAŁOGA</h2>
+            <div class="team-members">
+              <div class="team-member">
+                <div class="member-photo" style="background-image: url('static/images/wojtek.png');"></div>  
+                <h3 class="member-name">Wojtek</h3>
+                <p class="member-description">
+                  Dba o estetykę kina, zwraca uwagę na najdrobniejszy detal, dzięki czemu przestrzeń kina jest ucztą dla oka.
+                </p>
+              </div>
+              <div class="team-member">
+                <div class="member-photo" style="background-image: url('static/images/diana.png');"></div>
+                <h3 class="member-name">Diana</h3>
+                <p class="member-description">
+                  Dba o estetykę kina, zwraca uwagę na najdrobniejszy detal, dzięki czemu przestrzeń kina jest ucztą dla oka.
+                </p>
+              </div>
+              <div class="team-member">
+                <div class="member-photo" style="background-image: url('static/images/julek.png');"></div>
+                <h3 class="member-name">Julek</h3>
+                <p class="member-description">
+                  Dba o estetykę kina, zwraca uwagę na najdrobniejszy detal, dzięki czemu przestrzeń kina jest ucztą dla oka.
+                </p>
+              </div>
             </div>
-        </section>
+          </section>
     </main>
 
     <footer class="text-center py-4">

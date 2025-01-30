@@ -96,6 +96,10 @@ def onas():
 def repertuar():
     return render_template('repertuar.html', gKino = g.kino)
 
+@app.route('/kontakt')
+def kontakt():
+    return render_template('kontakt.html')
+
 # Wyświetlanie wszystkich filmów lub konkretnego filmu
 @app.route('/api/filmy', methods=['GET'])
 def get_filmy():
