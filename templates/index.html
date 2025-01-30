@@ -113,6 +113,10 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
+                    <h5>{{gKino.film[1].tytul}}</h5>
+                    <p>O kinie<br>Praca<br>Newsletter</p>
+                </div>
+                <div class="col-md-3">
                     <h5>O nas</h5>
                     <p>O kinie<br>Praca<br>Newsletter</p>
                 </div>
@@ -137,7 +141,7 @@
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: 'http://127.0.0.1:5000/api/filmy', // URL API
+                url: '/api/filmy',
                 method: 'GET',
                 success: function (response) {
                     
@@ -153,7 +157,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title">${film.tytul}</h5>
                                     <p class="card-text"><b>${film.gatunek} | ${film.dlugosc} min</b><br>${film.opis}<br></p>
-                                    <a href="#" class="btn">Zarezerwuj bilet</a>
+                                    <a href="/wybor_miejsca/${film.tytul}" class="btn">Zarezerwuj bilet</a>
                                 </div>
                             </div>   
                         `)

@@ -152,15 +152,15 @@
             </div>
         </div>
 
-        <h2>Oppenheimer</h2>
+        <h2 id="film_title">{{tytul}}</h2>
         <p>24.01 | 17:15 | Sala B2</p>
 
         <div class="seats">
             <div class="seat" data-seat="1A"></div>
-            <div class="seat taken" data-seat="1B"></div>
+            <div class="seat" data-seat="1B"></div>
             <div class="seat" data-seat="1C"></div>
             <div class="seat" data-seat="1D"></div>
-            <div class="seat taken" data-seat="1E"></div>
+            <div class="seat" data-seat="1E"></div>
             <div class="seat" data-seat="1F"></div>
             <div class="seat" data-seat="1G"></div>
             <div class="seat" data-seat="1H"></div>
@@ -179,37 +179,37 @@
             <div class="seat" data-seat="2J"></div>
 
             <div class="seat" data-seat="3A"></div>
-            <div class="seat taken" data-seat="3B"></div>
-            <div class="seat taken" data-seat="3C"></div>
-            <div class="seat taken" data-seat="3D"></div>
+            <div class="seat" data-seat="3B"></div>
+            <div class="seat" data-seat="3C"></div>
+            <div class="seat" data-seat="3D"></div>
             <div class="seat" data-seat="3E"></div>
             <div class="seat" data-seat="3F"></div>
             <div class="seat" data-seat="3G"></div>
-            <div class="seat taken" data-seat="3H"></div>
+            <div class="seat" data-seat="3H"></div>
             <div class="seat" data-seat="3I"></div>
             <div class="seat" data-seat="3J"></div>
 
             <div class="seat" data-seat="4A"></div>
-            <div class="seat"  data-seat="4B"></div>
+            <div class="seat" data-seat="4B"></div>
             <div class="seat" data-seat="4C"></div>
             <div class="seat" data-seat="4D"></div>
             <div class="seat" data-seat="4E"></div>
-            <div class="seat taken" data-seat="4F"></div>
-            <div class="seat taken" data-seat="4G"></div>
+            <div class="seat" data-seat="4F"></div>
+            <div class="seat" data-seat="4G"></div>
             <div class="seat" data-seat="4H"></div>
             <div class="seat" data-seat="4I"></div>
             <div class="seat" data-seat="4J"></div>
 
             <div class="seat" data-seat="5A"></div>
-            <div class="seat taken" data-seat="5B"></div>
-            <div class="seat taken" data-seat="5C"></div>
+            <div class="seat" data-seat="5B"></div>
+            <div class="seat" data-seat="5C"></div>
             <div class="seat" data-seat="5D"></div>
             <div class="seat" data-seat="5E"></div>
-            <div class="seat taken" data-seat="5F"></div>
+            <div class="seat" data-seat="5F"></div>
             <div class="seat" data-seat="5G"></div>
             <div class="seat" data-seat="5H"></div>
             <div class="seat" data-seat="5I"></div>
-            <div class="seat taken" data-seat="5J"></div>
+            <div class="seat" data-seat="5J"></div>
         </div>
 
         <div class="legend">
@@ -227,8 +227,11 @@
             </div>
         </div>
     <div class="btn-container">
+        <input type="hidden" id="seans-id" value="1"> <!-- Zmień wartość na ID aktualnego seansu -->
+        <input type="hidden" id="klient-id" value="123"> <!-- Zmień wartość na ID aktualnego klienta -->
+
         <button id="proceed-btn" class="btn btn-primary">Przejdź dalej</button>
-        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Wróć</button>
+        <button class="btn btn-secondary" onclick="window.location.href='/'">Wróć</button>
     </div>
 
     
@@ -268,46 +271,110 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
        
     <script>
-        // Pobierz elementy z DOM
-        const seats = document.querySelectorAll('.seat');
-        const proceedButton = document.getElementById('proceed-btn');
-        const errorMessage = document.getElementById('error-message');
-        let selectedSeat = null;
+        try {
+            $(document).ready(function () {
+                $.ajax({
+                    url: '/api/rezerwacja1',
+                    method: 'GET',
+                    success: function (response) {
+                        try {
+                            // Pobierz elementy z DOM
+                            const seats = document.querySelectorAll('.seat');
+                            const proceedButton = document.getElementById('proceed-btn');
+                            const errorMessage = document.getElementById('error-message');
+                            let selectedSeat = null;
+                            let rezerwacje = response;
+                            let lista_zajete= [];
+                            console.log(rezerwacje);
+                            rezerwacje.forEach(rezerwacja =>{
+                                lista_zajete.push(rezerwacja.miejsca);
+                            })
+                            console.log(lista_zajete);
+                            
+                            // Dodaj nasłuchiwanie zdarzeń do każdego miejsca
+                            seats.forEach(seat => {
+
+                                if(lista_zajete.includes(seat.getAttribute('data-seat'))){
+                                    seat.classList.toggle('taken');
+                                }
+
+                                seat.addEventListener('click', () => {
+                                    // Usuń zaznaczenie z innych miejsc
+                                    seats.forEach(s => s.classList.remove('selected'));
     
-        // Dodaj nasłuchiwanie zdarzeń do każdego miejsca
-        seats.forEach(seat => {
-            seat.addEventListener('click', () => {
-                // Usuń zaznaczenie z innych miejsc
-                seats.forEach(s => s.classList.remove('selected'));
-                
-                // Oznacz wybrane miejsce
-                seat.classList.add('selected');
-                selectedSeat = seat.getAttribute('data-seat');
-                
-                // Ukryj komunikat o błędzie, jeśli wcześniej był widoczny
-                errorMessage.style.display = 'none';
+                                    if (!seat.classList.contains('taken')) {
+                                        seat.classList.toggle('selected');
+                                    }
+    
+                                    // Oznacz wybrane miejsce
+                                    selectedSeat = seat.getAttribute('data-seat');
+    
+                                    // Ukryj komunikat o błędzie, jeśli wcześniej był widoczny
+                                    errorMessage.style.display = 'none';
+                                });
+                            });
+    
+                            // Obsługa kliknięcia przycisku "Przejdź dalej"
+                            proceedButton.addEventListener('click', async (e) => {
+                                try {
+                                    const selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(seat =>
+                                        seat.getAttribute('data-seat')
+                                    );
+                                    const seansId = document.getElementById('seans-id').value;
+                                    const klientId = document.getElementById('klient-id').value;
+    
+                                    console.log(selectedSeats, seansId, klientId);
+    
+                                    if (selectedSeats.length === 0) {
+                                        errorMessage.style.display = 'block';
+                                        return;
+                                    }
+    
+                                    const response = await fetch("/api/rezerwacja", {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                            seans_id: seansId,
+                                            klient_id: klientId,
+                                            miejsca: selectedSeats,
+                                        }),
+                                    });
+    
+                                    const result = await response.json();
+    
+                                    if (response.ok) {
+                                        alert(`Rezerwacja zakończona sukcesem! Kod: ${result.unikalny_kod}`);
+                                        window.location.href = '/wybor_biletow';
+                                    } else {
+                                        alert(`Błąd rezerwacji: ${result.error}`);
+                                    }
+                                } catch (error) {
+                                    console.error('Błąd rezerwacji:', error);
+                                    alert('Wystąpił błąd podczas rezerwacji: ' + error.message);
+                                }
+                            });
+                        } catch (error) {
+                            console.error("Błąd podczas przetwarzania danych:", error);
+                            alert("Wystąpił błąd podczas przetwarzania danych: " + error.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Błąd AJAX:", status, error);
+                        alert("Nie udało się pobrać danych. Spróbuj ponownie później.");
+                    }
+                });
             });
-        });
-    
-        // Obsługa kliknięcia przycisku "Przejdź dalej"
-        proceedButton.addEventListener('click', (e) => {
-            if (!selectedSeat) {
-                // Zablokuj domyślne działanie i wyświetl komunikat o błędzie
-                e.preventDefault();
-                errorMessage.style.display = 'block';
-            } else {
-                // Przejście do następnej strony (usuń komunikat o błędzie, jeśli był)
-                errorMessage.style.display = 'none';
-                window.location.href = 'wyborbiletow.html';
-            }
-        });
+        } catch (error) {
+            console.error("Nieoczekiwany błąd w kodzie JavaScript:", error);
+            alert("Wystąpił nieoczekiwany błąd: " + error.message);
+        }
     </script>
     
-    </script>
-    
-
-
 </body>
 </html>

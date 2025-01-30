@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wybór Biletów</title>
+    <title>Podsumowanie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -12,6 +12,7 @@
         }
         .navbar {
             background-color: #1c1c1c;
+            
         }
         footer {
             background-color: #1c1c1c;
@@ -23,7 +24,7 @@
             justify-content: center;
             gap: 3rem;
             margin-bottom: 2rem;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
         }
         .step-item {
             display: flex;
@@ -46,20 +47,19 @@
             background-color: #0066cc;
             color: #ffffff;
         }
-        .form-container {
+        .summary {
             background-color: #ffffff;
             color: #000000;
             border-radius: 10px;
             padding: 2rem;
             max-width: 500px;
             margin: 0 auto 2rem;
+            text-align: center;
         }
-        .form-container input {
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            border: 1px solid #000000;
-            border-radius: 6px;
-            width: 100%;
+        .barcode {
+            margin-top: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.5rem;
         }
         .btn-container {
             display: flex;
@@ -105,11 +105,11 @@
                 <div class="circle">2</div>
                 <span>Wybór biletów</span>
             </div>
-            <div class="step-item active">
+            <div class="step-item">
                 <div class="circle">3</div>
                 <span>Dane osobowe</span>
             </div>
-            <div class="step-item">
+            <div class="step-item active">
                 <div class="circle">4</div>
                 <span>Podsumowanie</span>
             </div>
@@ -118,19 +118,17 @@
         <h2>Oppenheimer</h2>
         <p>24.01 | 17:15 | Sala B2</p>
 
-        <div class="form-container">
-            <h3>Uzupełnij dane osobowe</h3>
-            <br>
-            <form>
-                <input type="text" placeholder="Imię" required>
-                <input type="text" placeholder="Nazwisko" required>
-                <input type="email" placeholder="Adres e-mail" required>
-            </form>
+        <div class="summary">
+            <h3>Twój bilet</h3>
+            <p>1 szt bilet "Film na który idę"</p>
+            <p><strong>Sala:</strong> 2</p>
+            <p><strong>Miejsce:</strong> 14</p>
+            <p><strong>Rząd:</strong> 2</p>
+            <div class="barcode">640509 040147</div>
         </div>
 
         <div class="btn-container">
-            <button class="btn btn-primary" onclick="window.location.href='Podsumowanie.html'">Przejdź dalej</button>
-            <button class="btn btn-secondary" onclick="window.location.href='wyborbiletow.html'">Wróć</button>
+            <button class="btn btn-primary" onclick="window.location.href='/'">Wróć do strony głównej</button>
         </div>
     </div>
 
