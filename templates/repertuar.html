@@ -21,7 +21,7 @@
             display: flex;
             justify-content: center;
             align-items:start;
-            background-color: #f4f4f9; /* Tło dla obrazków */
+            background-color: #f4f4f900; /* Tło dla obrazków */
         }
         .image-container img {
             max-width: 100%;
@@ -43,7 +43,7 @@
         }
         .card-body {
             flex-grow: 1;
-            height: 300px;
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content:start;
@@ -143,7 +143,6 @@
                                 <div class="card-body">
                                     <h5 class="card-title">${film.tytul}</h5>
                                     <p class="card-text"><b>${film.gatunek} | ${film.dlugosc} min</b><br>${film.opis}<br></p>
-                                    <a href="#" class="btn">Zarezerwuj bilet</a>
                                 </div>
                             </div>   
                         `)

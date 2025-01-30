@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Podsumowanie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <style>
         body {
             background-color: #121212;
@@ -73,25 +74,6 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Absolute Cinema</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Repertuar</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">O nas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Kontakt</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="#">Kup bilet</a>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
@@ -103,30 +85,28 @@
             </div>
             <div class="step-item">
                 <div class="circle">2</div>
-                <span>Wybór biletów</span>
-            </div>
-            <div class="step-item">
-                <div class="circle">3</div>
                 <span>Dane osobowe</span>
             </div>
             <div class="step-item active">
-                <div class="circle">4</div>
+                <div class="circle">3</div>
                 <span>Podsumowanie</span>
             </div>
         </div>
 
-        <h2>Oppenheimer</h2>
-        <p>24.01 | 17:15 | Sala B2</p>
+        <h2 id="tytul" value="{{seans_id}}"></h2>
+        <input type="hidden" id="seans-id" value="{{seans_id}}">
+        <input type="hidden" id="klient-id" value="{{klient_id}}">
+        <br>
 
         <div class="summary">
             <h3>Twój bilet</h3>
-            <p>1 szt bilet "Film na który idę"</p>
-            <p><strong>Sala:</strong> 2</p>
-            <p><strong>Miejsce:</strong> 14</p>
-            <p><strong>Rząd:</strong> 2</p>
-            <div class="barcode">640509 040147</div>
+            <p id="bilet-na"></p>
+            <p id="sala"></p>
+            <p id="miejsce"></p>
+            <p id="data"></p>
+            <div id="unique-code" class="barcode"></div>
         </div>
-
+        <p>Zapisz swój numer biletu: bez niego nie odbierzesz rezerwacji!</p>
         <div class="btn-container">
             <button class="btn btn-primary" onclick="window.location.href='/'">Wróć do strony głównej</button>
         </div>
@@ -155,6 +135,70 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/api/seanse',
+                method: 'GET',
+                success: function (response1) {
+                    
+                    $.ajax({
+                        url: '/api/filmy',
+                        method: 'GET',
+                        success: function (response2) { 
+
+                            console.log(response1)
+                            let seanse = response1;
+                            console.log(response2)
+                            let filmy = response2;
+                            let seansId = $('#tytul').attr('value');
+
+                            for (let i in seanse) {
+                                if (seanse[i].id == seansId) {
+                                    console.log(seanse[i])
+                                    
+                                    for (k in filmy) {
+                                        if(filmy[k].id == seanse[i].film_id) {
+                                            $('#tytul').text(filmy[k].tytul);
+                                            $('#bilet-na').text(`Bilet na film pt. "${filmy[k].tytul}"`);
+                                        }
+                                    }
+
+                                    let dzien = seanse[i].data.slice(-2);
+                                    let msc = seanse[i].data.slice(-5, -3);
+                                    let data = String(dzien) + '.' + String(msc) + '.';
+                                    
+                                    $('#sala').append(`<strong>Sala:</strong> ${seanse[i].sala}`);
+                                    $('#data').append(`W dniu <strong>${data} o godz. ${seanse[i].godzina}</strong>`);
+                                    
+                                }
+                            }
+                        }
+                    })
+                }
+            })
+
+            $.ajax({
+                url: '/api/rezerwacja1',
+                method: 'GET',
+                success: function (response3) {
+
+                    console.log(response3)
+                    let rezerwacje = response3;
+
+                    let klientId = document.getElementById('klient-id').value
+                    for (i in rezerwacje) {
+                        if (rezerwacje[i].klient_id == klientId) {
+                            $('#miejsce').append(`<strong>Miejsce:</strong> ${rezerwacje[i].miejsca}`);
+                            $('#unique-code').append(`${rezerwacje[i].unikalny_kod}`);
+                        }
+                    }
+
+                }
+            })
+        })
+    </script>
 </body>
 </html>

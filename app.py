@@ -243,21 +243,17 @@ def admin():
 def admin_bazy():
     return render_template('admin_bazy.html')
 
-@app.route('/podsumowanie')
-def podsumowanie():
-    return render_template('podsumowanie.html')
+@app.route('/podsumowanie/<seans_id>/<klient_id>')
+def podsumowanie(seans_id, klient_id):
+    return render_template('podsumowanie.html', seans_id = seans_id, klient_id = klient_id)
 
-@app.route('/dane_osobowe')
-def dane_osobowe():
-    return render_template('daneosobowe.html')
+@app.route('/dane_osobowe/<seans_id>/<klient_id>')
+def dane_osobowe(seans_id, klient_id):
+    return render_template('daneosobowe.html', seans_id = seans_id, klient_id = klient_id)
 
-@app.route('/wybor_biletow')
-def wybor_biletow():
-    return render_template('wyborbiletow.html')
-
-@app.route('/wybor_miejsca/<film_tytul>')
-def wybor_miejsca(film_tytul):
-    return render_template('wybormiejsca.html', gKino = g.kino, tytul = film_tytul)
+@app.route('/wybor_miejsca/<seans_id>/<tytul>/<dzien>/<godzina>/<sala>')
+def wybor_miejsca(seans_id, tytul, dzien, godzina, sala):
+    return render_template('wybormiejsca.html', gKino = g.kino, seans_id = seans_id,  tytul = tytul, dzien = dzien, godzina = godzina, sala = sala)
 
 @app.route('/api/rezerwacja', methods=['POST'])
 def zarezerwuj_miejsce():
@@ -294,10 +290,38 @@ def zarezerwuj_miejsce():
         'miejsca': miejsca
     }), 200
 
+@app.route('/api/klienci', methods=['POST']) #dodawanie klienta
+def dodaj_klienta():
+    data = request.json  # Pobranie danych z żądania
+
+    # Sprawdzenie, czy wszystkie wymagane pola są obecne
+    if not all(key in data for key in ['imie', 'nazwisko', 'email']):
+        return jsonify({'error': 'Brak wymaganych pól'}), 400
+
+    # Sprawdzenie, czy e-mail jest unikalny
+    if Klient.query.filter_by(email=data['email']).first():
+        return jsonify({'error': 'Podany adres e-mail już istnieje'}), 409  # Kod 409 - konflikt
+
+    try:
+        # Tworzenie nowego klienta
+        nowy_klient = Klient(
+            imie=data['imie'],
+            nazwisko=data['nazwisko'],
+            email=data['email']
+        )
+
+        db.session.add(nowy_klient)
+        db.session.commit()
+
+        return jsonify({'message': 'Klient dodany pomyślnie', 'id': nowy_klient.id}), 201  # 201 - Created
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500  # 500 - Internal Server Error
+
 @app.route('/admin/bazy/zarzadzaj_filmami', methods=['GET', 'POST'])
 def zarzadzaj_filmami():
     message = None
-    filmy = Film.query.order_by(Film.data_premiery.desc()).all()  # Pobieranie wszystkich filmów z bazy w kolejności wg daty premiery
+    filmy = Film.query.all()  # Pobieranie wszystkich filmów z bazy w kolejności wg daty premiery
 
     if request.method == 'POST':
         tytul = request.form.get('tytul')
@@ -494,7 +518,7 @@ def usun_rezerwacje(rezerwacja_id):
 @app.route('/admin/bazy/zarzadzaj_klientami', methods=['GET', 'POST'])
 def zarzadzaj_klientami():
     message = None
-    klienci = Klient.query.order_by(Klient.nazwisko.asc()).all()  # Pobieranie wszystkich klientów, sortowanie po nazwisku
+    klienci = Klient.query.all()  # Pobieranie wszystkich klientów, sortowanie po nazwisku
 
     if request.method == 'POST':
         imie = request.form.get('imie')

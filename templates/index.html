@@ -21,7 +21,7 @@
             display: flex;
             justify-content: center;
             align-items:start;
-            background-color: #f4f4f9; /* Tło dla obrazków */
+            background-color: #f4f4f900; /* Tło dla obrazków */
         }
         .image-container img {
             max-width: 100%;
@@ -43,7 +43,7 @@
         }
         .card-body {
             flex-grow: 1;
-            height: 300px;
+            height: auto;
             display: flex;
             flex-direction: column;
             justify-content:start;
@@ -141,35 +141,80 @@
     <script>
         $(document).ready(function () {
             $.ajax({
-                url: '/api/filmy',
+                url: '/api/seanse',
                 method: 'GET',
-                success: function (response) {
+                success: function (response1) {
                     
-                    let filmy = response
+                    $.ajax({
+                        url: '/api/filmy',
+                        method: 'GET',
+                        success: function (response2) {
+                    
+                            let seanse = response1;
+                            console.log(seanse);
 
-                    function displayFilms (film) { 
-                        $('#film-el').append(`
-                            <div class="col">
-                                <div class="card h-100">
-                                <div class="image-container">
-                                    <img src="${film.plakat_url}" class="card-img-top" alt="${film.tytul}">
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">${film.tytul}</h5>
-                                    <p class="card-text"><b>${film.gatunek} | ${film.dlugosc} min</b><br>${film.opis}<br></p>
-                                    <a href="/wybor_miejsca/${film.tytul}" class="btn">Zarezerwuj bilet</a>
-                                </div>
-                            </div>   
-                        `)
-                    }
-                    for (let i in filmy) {
-                        let film = filmy[i]
-                        displayFilms(film);
-                    }
+                            let filmy = response2;
+                            console.log(filmy);
 
+                            let idFilmowZSeansow = [];
+                            for (let i in seanse) {
+                                let idSeansu = seanse[i].id;
+                                let idFilmu = seanse[i].film_id;
+                                idFilmowZSeansow.push({idSeansu, idFilmu});
+                            }
+                            console.log(idFilmowZSeansow);
+
+                            let seanseZDanymiFilmow = [];
+                            for (i in idFilmowZSeansow)
+                            {
+                                let idSeansu = idFilmowZSeansow[i].idSeansu;
+                                let idFilmu = idFilmowZSeansow[i].idFilmu;
+                                let data = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].data;
+                                let godzina = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].godzina;
+                                let cena = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].cena;
+                                let sala = seanse[Number(idFilmowZSeansow[i].idSeansu) - 1].sala;
+                                let plakat_url = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].plakat_url;
+                                let tytul = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].tytul;
+                                let gatunek = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].gatunek;
+                                let opis = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].opis;
+                                let dlugosc = filmy[Number(idFilmowZSeansow[i].idFilmu) - 1].dlugosc;
+
+                                seanseZDanymiFilmow.push({idSeansu, idFilmu, data, godzina, cena, sala, plakat_url, tytul, gatunek, opis, dlugosc});
+                            }
+                            console.log(seanseZDanymiFilmow);
+                        
+
+                            function displayFilms (film) { 
+
+                                let dzien = film.data.slice(-2);
+                                let msc = film.data.slice(-5, -3);
+                                let data = String(dzien) + '.' + String(msc) + '.';
+
+
+                                $('#film-el').append(`
+                                    <div class="col">
+                                        <div class="card h-100">
+                                        <div class="image-container">
+                                            <img src="${film.plakat_url}" class="card-img-top" alt="${film.tytul}">
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title"><b>${film.tytul}</b></h5>
+                                            <div><b>${data} godz. ${film.godzina}</b></div>
+                                            <p class="card-text"><i>${film.gatunek} | ${film.dlugosc} min</i><br>${film.opis}<br><br></p>
+                                            <a href="/wybor_miejsca/${film.idSeansu}/${film.tytul}/${data}/${film.godzina}/${film.sala}" class="btn">Zarezerwuj bilet</a>
+                                        </div>
+                                    </div>   
+                                `)
+                            }
+                            for (let i in seanseZDanymiFilmow) {
+                                let seansFilm = seanseZDanymiFilmow[i]
+                                displayFilms(seansFilm);
+                            }
+                        }
+                    })
                 }
             })
-
+            
             $('#dzis').text(function () {
                 function dzisiejszaData() {
                     const dzisiaj = new Date(); // Pobieramy dzisiejszą datę
@@ -182,6 +227,7 @@
 
                 return 'Dziś (' + dzisiejszaData() + ')';
             })
+
         })            
     </script>
 </body>
