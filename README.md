@@ -8,9 +8,36 @@ Aplikacja do zarządzania rezerwacjami i filmami w kinie "Absolute Cinema". Umo�
 Aplikacja Absolute Cinema to aplikacja webowa umożliwiająca użytkownikom przeglądanie repertuaru kinowego, wybór seansu oraz rezerwację miejsc na wybrane filmy. Oferuje interaktywną mapę sali kinowej do wyboru miejsc. Dodatkowo administrator ma dostęp do specjalnego panelu, który pozwala na zarządzanie filmami, seansami oraz rezerwacjami. Projekt posiada także API, które umożliwia rezerwację biletów poprzez URL.
 
 ## Use Case Diagram
+![Use Case Diagrams](https://github.com/user-attachments/assets/1388c369-5abe-4390-abfe-3580d205df72)
 
-![image](https://github.com/user-attachments/assets/978b4ca9-ce66-4934-bfdc-65f00aebf5d2)
 
+1. Role użytkowników
+
+Klient – użytkownik końcowy, który może przeglądać repertuar, wybierać miejsca i dokonywać rezerwacji.
+Pracownik – osoba obsługująca rezerwacje, mająca dostęp do ich edycji, usuwania oraz do zarządzania filmami i seansami.
+
+2. Główne przypadki użycia
+
+Dla klienta:
+
+Przeglądanie filmów – klient może zobaczyć dostępne filmy w repertuarze.
+Wybór miejsc – przed dokonaniem rezerwacji klient wybiera miejsca na sali.
+Rezerwacja biletów – finalizacja procesu rezerwacji, zapisanie jej w bazie danych.
+
+Dla pracownika:
+Logowanie – pracownik uzyskuje dostęp do systemu po uwierzytelnieniu.
+Przeglądanie rezerwacji – możliwość podglądu istniejących rezerwacji.
+Edycja rezerwacji – zmiana danych dotyczących rezerwacji.
+Usuwanie rezerwacji – anulowanie rezerwacji na życzenie klienta lub w razie potrzeby.
+Przeglądanie filmów i seansów – dostęp do repertuaru.
+Edycja filmów i seansów – możliwość dodania, aktualizacji, usuwania pozycji z repertuaru kina.
+
+3. Relacje z bazą danych
+
+Każda rezerwacja jest zapisywana w tabeli Rezerwacje.
+Klient wybiera film z tabeli Filmy i seans z tabeli Seanse.
+Pracownik zarządza rezerwacjami, filmami i seansami, co wpływa na powiązane tabele Klienci, Rezerwacje i Seanse.
+Administratorzy zapisani w tabeli Administratorzy mają dostęp do edycji i zarządzania systemem.
 
 
 ## Uruchamianie aplikacji
@@ -200,3 +227,23 @@ Przykładowa odpowiedź:
   "unikalny_kod": "ABC123XYZ"
 }
 
+## Proces projektowania
+
+### Wireframing 
+Na pierwszym etapie projektowania interfejsu użytkownika stworzyliśmy wireframes, czyli szkice ekranów aplikacji, które pozwoliły określić podstawowy układ elementów i ich funkcjonalność. Wireframes były stworzone w narzędziu Figma i uwzględniały kluczowe widoki, takie jak: 
+- Repertuar,
+- wybór miejsca.
+
+![Repertuar](https://github.com/user-attachments/assets/85ff7581-b9ae-446f-9813-bb77ccde7492)
+
+![Wybór miejsca](https://github.com/user-attachments/assets/3a1e40a7-873e-4f30-831e-bde510141350)
+
+## Optymalizacja wizualna i logistyczna
+Po przeanalizowaniu wireframes i przeprowadzeniu wstępnych testów użyteczności wprowadziliśmy istotne poprawki:
+
+- Usprawniona nawigacja – uproszczenie menu oraz dodanie jasnych ścieżek powrotu do poprzednich ekranów,
+- Czytelność interfejsu – poprawione rozmieszczenie elementów, zwiększenie kontrastu i większa czytelność tekstów,
+- Reorganizacja widoku wyboru miejsc – bardziej intuicyjna interaktywna mapa sali kinowej,
+- Usprawnienie procesu rezerwacji – podział na czytelne etapy z jasnym podsumowaniem przed finalizacją rezerwacji.
+
+## Tworzenie mockupów
