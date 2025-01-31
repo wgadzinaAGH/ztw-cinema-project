@@ -227,6 +227,63 @@ Przykładowa odpowiedź:
   "unikalny_kod": "ABC123XYZ"
 }
 
+### 3. Rezerwacja dzięki API przez żądanie HTTP
+
+API umożliwia użytkownikom rezerwację biletów bez konieczności wchodzenia w aplikację. Użytkownik może dokonać rezerwacji poprzez wysłanie żądania HTTP, podając dane dotyczące filmu, daty, godziny oraz wybranego miejsca.
+
+/api/rezerwacja/<int:film_id>/<string:data>/<string:godzina>/<string:miejsce>
+
+1. API sprawdza, czy film o podanym ID istnieje w bazie danych.
+2. Jeśli film istnieje, system sprawdza, czy w danym dniu i godzinie dostępny jest seans.
+3. Jeżeli seans istnieje, API weryfikuje, czy podane miejsce jest wolne.
+4. Jeśli miejsce jest dostępne, tworzy nową rezerwację i zapisuje ją w bazie danych.
+5. Po udanej rezerwacji użytkownik otrzymuje unikalny kod rezerwacji, który może zostać wykorzystany przy odbiorze biletu.
+
+Przykład użycia:
+
+Rezerwacja miejsca "A12" na seans filmu o ID 5, dnia 2024-02-15 o godzinie 18:30:
+
+Przykładowa odpowiedź JSON (sukces):
+
+{
+    "status": "success",
+    "message": "Rezerwacja została potwierdzona",
+    "unikalny_kod": "5A12202402151830123456",
+    "film": "Incepcja",
+    "data": "2024-02-15",
+    "godzina": "18:30",
+    "miejsce": "A12"
+}
+
+Odpowiedzi JSON (błędy):
+
+Jeśli film o podanym ID nie istnieje:
+{
+    "status": "error",
+    "message": "Film nie istnieje"
+}
+
+Jeśli seans w podanym terminie i godzinie nie istnieje:
+{
+    "status": "error",
+    "message": "Seans nie istnieje w podanym dniu i godzinie"
+}
+
+Jeśli miejsce jest już zajęte:
+{
+    "status": "error",
+    "message": "Miejsce jest już zajęte"
+}
+
+Jeśli format daty lub godziny jest nieprawidłowy:
+{
+    "status": "error",
+    "message": "Nieprawidłowe dane wejściowe"
+}
+
+Dzięki temu API użytkownicy mogą łatwo i szybko rezerwować bilety, nawet bez dostępu do interfejsu graficznego aplikacji.
+
+
 ## Proces projektowania
 
 ### Wireframing 
