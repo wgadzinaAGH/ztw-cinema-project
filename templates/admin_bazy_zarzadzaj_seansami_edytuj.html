@@ -63,13 +63,15 @@
 <body>
     <div class="container">
         <h1>Edytuj Seans: {{ seans.film.tytul }} - {{ seans.data }}</h1>
-        
+
         <!-- Formularz do edytowania seansu -->
         <form method="POST">
             <label for="film_id">Film:</label>
             <select id="film_id" name="film_id">
                 {% for film in filmy %}
-                <option value="{{ film.id }}" {% if film.id == seans.film_id %}selected{% endif %}>{{ film.tytul }}</option>
+                    <option value="{{ film.id }}" {{ 'selected' if film.id == seans.film_id else '' }}>
+                        {{ film.tytul }}
+                    </option>
                 {% endfor %}
             </select>
     
