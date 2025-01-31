@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash
 import random
 import string
 import logging
-
+import re
 
 # Inicjalizacja aplikacji Flask
 app = Flask(__name__)
@@ -209,6 +209,10 @@ def zarezerwuj_bilet(film_id, data, godzina, miejsce):
         seans = Seans.query.filter_by(film_id=film_id, data=datetime.strptime(data, '%Y-%m-%d').date(), godzina=datetime.strptime(godzina, '%H:%M').time()).first()
         if not seans:
             return jsonify({'status': 'error', 'message': 'Seans nie istnieje w podanym dniu i godzinie'}), 404
+        
+        # Sprawdzenie formatu miejsca
+        if not re.fullmatch(r'[1-5][A-J]', miejsce):
+            return jsonify({'status': 'error', 'message': 'Niepoprawny format miejsca. Poprawny format: liczba (1-5) + litera (A-J), np. 1A, 4C'}), 400
 
         # Sprawdzenie, czy miejsce jest już zajęte
         zajete_miejsca = [rez.miejsca for rez in seans.rezerwacje]
@@ -217,7 +221,7 @@ def zarezerwuj_bilet(film_id, data, godzina, miejsce):
 
         # Tworzenie nowej rezerwacji
         nowa_rezerwacja = Rezerwacja(
-            klient_id=None,  # Możesz tu dodać logikę przypisywania do użytkownika
+            klient_id=321,  # Możesz tu dodać logikę przypisywania do użytkownika
             seans_id=seans.id,
             miejsca=miejsce,
             status='potwierdzona',
