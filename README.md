@@ -1,8 +1,6 @@
-![Repertuar (3)](https://github.com/user-attachments/assets/6b563119-8872-46f0-8996-c75755319697)# ztw-cinema-project - Absolute Cinema
+# ztw-cinema-project - Dokumentacja projektu aplikacji Absolute Cinema
 Projekt zaliczeniowy na Zaawansowane Technologie Webowe - Aplikacja kinowa
 Aplikacja do zarządzania rezerwacjami i filmami w kinie "Absolute Cinema". Umożliwia adminowi oraz pracownikowi zarządzanie rezerwacjami, filmami, klientami oraz sesjami kinowymi.
-
-// Dokumentacja - o czym jest projekt, instrukcja krok po kroku jak uruchomić kod, najważniejsze pliki naszego kodu zaznaczyć, jakies przykłądy użycia kodu
 
 ## Opis projektu
 Aplikacja Absolute Cinema to aplikacja webowa umożliwiająca użytkownikom przeglądanie repertuaru kinowego, wybór seansu oraz rezerwację miejsc na wybrane filmy. Oferuje interaktywną mapę sali kinowej do wyboru miejsc. Dodatkowo administrator ma dostęp do specjalnego panelu, który pozwala na zarządzanie filmami, seansami oraz rezerwacjami. Projekt posiada także API, które umożliwia rezerwację biletów poprzez URL.
