@@ -106,7 +106,8 @@
         <div class="d-flex justify-content-left mb-4">
             <button id="dzis" class="btn btn-outline me-3"></button>
             <button class="btn btn-outline me-3">Jutro</button>
-            <button class="btn btn-outline">Cały tydzień</button>
+            <button class="btn btn-outline me-3">Przez następny tydzień</button>
+            <button class="btn btn-outline me-3">Wszystkie seanse</button>
         </div>
 
         <div id="film-el" class="row row-cols-1 row-cols-md-3 g-4"></div>
@@ -116,10 +117,6 @@
     <footer class="text-center py-4">
         <div class="container">
             <div class="row">
-                <div class="col-md-3">
-                    <h5>{{gKino.film[1].tytul}}</h5>
-                    <p>O kinie<br>Praca<br>Newsletter</p>
-                </div>
                 <div class="col-md-3">
                     <h5>O nas</h5>
                     <p>O kinie<br>Praca<br>Newsletter</p>
@@ -214,6 +211,51 @@
                                 let seansFilm = seanseZDanymiFilmow[i]
                                 displayFilms(seansFilm);
                             }
+
+                            function filterSeanse(daysOffset) {
+                                let dzisiaj = new Date();
+                                dzisiaj.setDate(dzisiaj.getDate() + daysOffset);
+                                let dzien = ("0" + dzisiaj.getDate()).slice(-2);
+                                let miesiac = ("0" + (dzisiaj.getMonth() + 1)).slice(-2);
+                                let filtrowanaData = `${dzisiaj.getFullYear()}-${miesiac}-${dzien}`;
+
+                                $("#film-el").empty();
+
+                                let znalezionoSeanse = false; // Definiujemy zmienną
+
+                                seanseZDanymiFilmow.forEach(seans => {
+                                    if (daysOffset === 7 || seans.data === filtrowanaData) {
+                                        displayFilms(seans);
+                                        znalezionoSeanse = true;
+                                    }
+                                });
+
+                                if (!znalezionoSeanse) {
+                                    $("#film-el").append(`
+                                        <div class="col text-center">
+                                            <h3>Brak seansów na wybrany dzień 😞</h3>
+                                        </div>
+                                    `);
+                                }
+                            }
+
+                            $("#dzis").click(function () {
+                                filterSeanse(0);
+                            });
+
+                            $(".btn:contains('Jutro')").click(function () {
+                                filterSeanse(1);
+                            });
+
+                            $(".btn:contains('Przez następny tydzień')").click(function () {
+                                filterSeanse(7);
+                            });
+
+                            $(".btn:contains('Wszystkie seanse')").click(function () {
+                                $("#film-el").empty();
+                                seanseZDanymiFilmow.forEach(displayFilms);
+                            });
+
                         }
                     })
                 }

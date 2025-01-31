@@ -530,6 +530,7 @@ def zarzadzaj_seansami():
 @app.route('/admin/bazy/zarzadzaj_seansami/edytuj/<int:seans_id>', methods=['GET', 'POST'])
 def edytuj_seans(seans_id):
     seans = Seans.query.get_or_404(seans_id)  # Pobieramy seans z bazy na podstawie jego ID
+    filmy = Film.query.all()
 
     if request.method == 'POST':
         # Pobieramy dane z formularza
@@ -549,7 +550,7 @@ def edytuj_seans(seans_id):
             message = f"Wystąpił błąd: {str(e)}"
             return render_template('admin_bazy_zarzadzaj_seansami_edytuj.html', seans=seans, message=message)
 
-    return render_template('admin_bazy_zarzadzaj_seansami_edytuj.html', seans=seans)
+    return render_template('admin_bazy_zarzadzaj_seansami_edytuj.html', seans=seans, filmy=filmy)
 
 @app.route('/admin/bazy/zarzadzaj_seansami/usun/<int:seans_id>', methods=['GET'])
 def usun_seans(seans_id):
@@ -595,6 +596,8 @@ def zarzadzaj_rezerwacjami():
 @app.route('/admin/bazy/zarzadzaj_rezerwacjami/edytuj/<int:rezerwacja_id>', methods=['GET', 'POST'])
 def edytuj_rezerwacje(rezerwacja_id):
     rezerwacja = Rezerwacja.query.get_or_404(rezerwacja_id)  # Pobieramy rezerwację na podstawie ID
+    seanse = Seans.query.all()
+    klienci = Klient.query.all()
 
     if request.method == 'POST':
         # Pobieramy dane z formularza
@@ -613,7 +616,7 @@ def edytuj_rezerwacje(rezerwacja_id):
             message = f"Wystąpił błąd: {str(e)}"
             return render_template('admin_bazy_zarzadzaj_rezerwacjami_edytuj.html', rezerwacja=rezerwacja, message=message)
 
-    return render_template('admin_bazy_zarzadzaj_rezerwacjami_edytuj.html', rezerwacja=rezerwacja)
+    return render_template('admin_bazy_zarzadzaj_rezerwacjami_edytuj.html', rezerwacja=rezerwacja, seanse=seanse, klienci=klienci)
 
 @app.route('/admin/bazy/zarzadzaj_rezerwacjami/usun/<int:rezerwacja_id>', methods=['GET'])
 def usun_rezerwacje(rezerwacja_id):

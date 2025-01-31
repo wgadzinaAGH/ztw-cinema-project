@@ -285,8 +285,10 @@
 
                             // Pobranie listy zajętych miejsc
                             rezerwacjeWTymSeansie.forEach(rezerwacja => {
-                                lista_zajete.push(rezerwacja.miejsca);
+                                lista_zajete.push(...rezerwacja.miejsca.split(", "));
                             });
+                            console.log('lista_zajete')
+                            console.log(lista_zajete)
 
                             //pobieranie listy id klientów
                             let listaIdKlientow = [];
