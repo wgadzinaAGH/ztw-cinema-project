@@ -1,4 +1,4 @@
-# ztw-cinema-project - Absolute Cinema
+![Repertuar (3)](https://github.com/user-attachments/assets/6b563119-8872-46f0-8996-c75755319697)# ztw-cinema-project - Absolute Cinema
 Projekt zaliczeniowy na Zaawansowane Technologie Webowe - Aplikacja kinowa
 Aplikacja do zarządzania rezerwacjami i filmami w kinie "Absolute Cinema". Umożliwia adminowi oraz pracownikowi zarządzanie rezerwacjami, filmami, klientami oraz sesjami kinowymi.
 
@@ -303,4 +303,28 @@ Po przeanalizowaniu wireframes i przeprowadzeniu wstępnych testów użytecznoś
 - Reorganizacja widoku wyboru miejsc – bardziej intuicyjna interaktywna mapa sali kinowej,
 - Usprawnienie procesu rezerwacji – podział na czytelne etapy z jasnym podsumowaniem przed finalizacją rezerwacji.
 
+## Przeprojektowanie Wireframe'ów
+![Szkic strona glowna (3)](https://github.com/user-attachments/assets/32d2a422-bcb8-4f2e-898c-00a0bf278917)
+![Repertuar (2)](https://github.com/user-attachments/assets/c3a2dbe7-7849-46ae-ac7b-96f360fd701f)
+![Repertuar (3)](https://github.com/user-attachments/assets/bc71b252-efe5-4d75-8da2-3d3a2adaf377)
+![Kup bilet](https://github.com/user-attachments/assets/f30b0e90-5a61-48ca-a7d9-a7051671d6a3)
+![Wybór biletów](https://github.com/user-attachments/assets/6a64aa68-ad2a-476f-9dfe-4c917ede3b17)
+![Podsumowanie (1)](https://github.com/user-attachments/assets/b32b51a5-618b-43e6-be6e-ce8d527fca5c)
+![Podsumowanie (2)](https://github.com/user-attachments/assets/9409fc8c-99f5-4cbd-b2fc-d6af3eb23117)
+
+
 ## Tworzenie mockupów
+
+Po stworzeniu poprawionych szkicy w Figmie, zostały stworzone wersje o wysokiej szczegółowości, które imitowały jak najbliższy wygląd finalnej aplikacji. 
+Została zastosowana ciemna kolorystyka aplikacji z białymi oraz niebieskimi akcentami wyróżniającymi. Dodatkowo placeholdery zostały wypełnione faktycznymi treściami dla oddania większego realizmu aplikacji.
+
+![Szkic strona glowna (8)](https://github.com/user-attachments/assets/74069ba1-4bd1-4273-ae60-4fac43a61f54)
+![Repertuar (6)](https://github.com/user-attachments/assets/719809c4-c67c-434e-8825-fd6bf7a21df3)
+![O nas (2)](https://github.com/user-attachments/assets/df8eb0b3-6ad3-4921-ada0-618dfecd401b)
+![Wybor miejsca (3)](https://github.com/user-attachments/assets/5cb9c0bc-a7b7-4624-8966-e7455273d24f)
+![Wybor biletow (3)](https://github.com/user-attachments/assets/dc3d0ebd-8c30-4b85-b5ab-67bfe72eb951)
+![Dane osobowe (1)](https://github.com/user-attachments/assets/58359b20-8e7f-4635-82d4-3113ab0ff2b9)
+![Podsumowanie (5)](https://github.com/user-attachments/assets/ec63fd2d-6cab-440f-abb3-9c565a2b3daa)
+![Kontakt (1)](https://github.com/user-attachments/assets/19c2d85a-b02c-4d23-8086-c85533a00c89)
+
+
