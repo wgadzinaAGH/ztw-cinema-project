@@ -360,7 +360,7 @@
                                     const result = await response.json();
     
                                     if (response.ok) {
-                                        alert(`Rezerwacja zakończona sukcesem! Kod: ${result.unikalny_kod}`);
+                                        alert(`Rezerwacja udana! To Twój kod: ${result.unikalny_kod}, a teraz powiedz nam jak się do Ciebie zwracać.`);
                                         window.location.href = `/dane_osobowe/${seansId}/${klientId}`;
                                     } else {
                                         alert(`Błąd rezerwacji: ${result.error}`);
